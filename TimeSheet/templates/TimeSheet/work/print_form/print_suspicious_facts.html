@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load l10n %}
+
+
+{% block title %}
+    {% localize on %}
+        Отчет по незаполненным данным: {{ dts_begin }} - {{ dts_end }}{{ block.super }}
+    {% endlocalize %}
+
+{% endblock %}
+
+{% block content %}
+
+    <form action="" method="post">
+        {% csrf_token %}
+        <p><label for="dts_begin">Периода с: </label><input type="date" name="dts_begin" required="" id="dts_begin"
+                                                            value={{ dts_begin }}>
+            <label for="dts_end"> по: </label><input type="date" name="dts_end" required="" id="dts_end"
+                                                     value={{ dts_end }}>
+            <input type="submit" class="btn btn-success" value="Сформировать" name="close_table"></p>
+
+        <div class="col col-sm-auto mb-2">
+            <a id="exp" type="button" class="btn btn-outline-primary">Сохранить в Excel</a>
+        </div>
+        <table border="1" id="datatable" class="table table-bordered table-hover fade show active overflow-auto table-striped">
+            <thead class="thead-light">
+            <tr>
+                <th>Дата</th>
+                <th>Подразделение</th>
+                <th>Сотрудник</th>
+                <th>Текущий План</th>
+                <th>Предыдущий Факт</th>
+                <th>Часы</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for rowdata in init %}
+                <tr>
+                    <td>{{ rowdata.dts }}</td>
+                    <td>{{ rowdata.en }}</td>
+                    <td>{{ rowdata.person_name }}</td>
+                    <td>{{ rowdata.bk_tp }}</td>
+                    <td>{{ rowdata.bk_f }}</td>
+                    <td>{{ rowdata.amount|floatformat:1 }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </form>
+
+    {% block morejs %}
+
+        <script>
+        $(document).ready(function () {
+                $('#datatable').floatThead({
+                    top: 50,
+                    position: 'fixed'
+                });
+
+                preview_excel('exp', 'datatable', 'suspicious_fact');
+
+                $('#datatable').on("floatThead", function (e, isFloated, $floatContainer) {
+
+                    if (isFloated) {
+                        $floatContainer.addClass("floated"); // the div containing the table containing the thead
+                        $(this).addClass("floated"); // $table
+                    } else {
+                        $floatContainer.removeClass("floated");
+                        $(this).removeClass("floated");
+                    }
+                })
+
+            });
+        </script>
+
+    {% endblock morejs %}
+{% endblock %}
+

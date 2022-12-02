@@ -1,0 +1,56 @@
+{% load static %}
+{% load l10n %}
+
+<table border="1" id="datatable" class="table table-bordered table-hover">
+    <thead class="thead-light">
+    <tr>
+        <th>Дата</th>
+        <th>Подразделение</th>
+        <th>Должность</th>
+        <th>График</th>
+        <th>Должность</th>
+        <th>План</th>
+        <th>Факт</th>
+        <th>План часы</th>
+        <th>Факт часы</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    {% for rowdata in init %}
+        <tr>
+            <td>{{ rowdata.0 }}</td>
+            <td>{{ rowdata.1 }}</td>
+            <td>{{ rowdata.2 }}</td>
+            <td>{{ rowdata.3 }}</td>
+            <td>{{ rowdata.4 }}</td>
+            <td>{{ rowdata.5 }}</td>
+            <td>{{ rowdata.6 }}</td>
+            <td>{{ rowdata.7|floatformat:1 }}</td>
+            <td>{{ rowdata.8|floatformat:1 }}</td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+
+</table>
+
+<!-- REQUIRED SCRIPTS -->
+<!-- jQuery -->
+<script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'dist/js/jquery.formset.js' %}"></script>
+<!-- Bootstrap -->
+<script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'plugins/toastr/toastr.min.js' %}"></script>
+<!-- overlayScrollbars -->
+<script
+        src="{% static 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
+
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.js' %}"></script>
+
+<!-- OPTIONAL SCRIPTS -->
+<script src="{% static 'dist/js/demo.js' %}"></script>
+
+<script src="{% static 'plugins/jquery/jquery.floatThead.js' %}"></script>
+<script src="{% static 'plugins/jquery/jquery.floatThead.min.js' %}"></script>

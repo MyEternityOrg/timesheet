@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Список табелей{% endblock title %}
+
+{% block content %}
+
+
+<div class="fixed-table-toolbar">
+    <table id="datatable" class="table table-bordered table-hover" data-page-length='10'>
+    <ol class="breadcrumb">
+        <li>
+            <input type="button" class="btn btn-success" value="Фильтр" name="filter" onclick="filter_table()"> <label>{{ str_filter }}</label>
+        </li>
+    </ol>
+      <thead class="thead-light">
+        <tr>
+<!--          <th>S/N</th>-->
+          <th>Подразделение</th>
+          <th>Месяц</th>
+          <th>Год</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {% for rowdata in data_set %}
+          <tr class='clickable-row' data-href="{% url 'table-sheet' rowdata.0 rowdata.3 rowdata.2 %}">
+<!--            <td>{{ forloop.counter}}</td>-->
+            <td>{{ rowdata.1}}</td>
+            <td>{{ dict_month|get_item:rowdata.2 }}</td>
+            <td>{{ rowdata.3}}</td>
+          </tr>
+        {% endfor %}
+
+      </tbody>
+    </table>
+  {% endblock content %}
+</div>
+
+{% block morejs %}
+<script>
+  $('#datatable').DataTable({
+  responsive: true
+  });
+
+  function filter_table(){
+        var _url = '/filter/';
+                    window.open(_url, "", "width=650,height=500, status=yes, toolbar=no, menubar=no, location=no,addressbar=no");
+  }
+
+  function func_reload_filter() {
+      location.reload()
+  }
+</script>
+
+{% endblock morejs %}

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load l10n %}
+
+{% block title %}
+    {% localize on %}
+        Отчет по расхождению план/факт период{{ block.super }}
+    {% endlocalize %}
+{% endblock %}
+
+
+{% block content %}
+
+    <form action="" method="post">
+
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-auto">
+                <label for="dts_begin">Периода с: </label><input type="date" name="dts_begin" required="" id="dts_begin"
+                                                                 value={{ dts_begin }}>
+                <label for="dts_end"> по: </label><input type="date" name="dts_end" required="" id="dts_end"
+                                                         value={{ dts_end }}>
+                <input type="button" value="Сформировать" onclick="reload_data()">
+            </div>
+
+            <div class="col-auto">
+                <a id="exp" type="button" class="btn btn-outline-primary">Сохранить в Excel</a>
+            </div>
+        </div>
+
+        <table id="datatable" class="table table-bordered table-hover">
+            <thead class="thead-light">
+            <tr>
+                <th>Дата</th>
+                <th>Подразделение</th>
+                <th>Должность</th>
+                <th>График</th>
+                <th>Должность</th>
+                <th>План</th>
+                <th>Факт</th>
+                <th>План часы</th>
+                <th>Факт часы</th>
+            </tr>
+            </thead>
+        </table>
+        <div class="text-center">
+            <div class="spinner-border" id='spinner' style="width: 3rem; height: 3rem;" role="status" hidden>
+                <span class="visually-hidden"></span>
+            </div>
+        </div>
+
+        <!--MODAL-->
+        <div class="modal bd-example-modal-lg" id="ModalWindow" tabindex="-1" role="dialog"
+             aria-labelledby="ModalWindowLg"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                {% include 'TimeSheet/part_form/spinner_small.html' %}
+                <div class="modal-content">
+                </div>
+                <a href="#close-modal" rel="modal:close" class="close-modal ">Close</a>
+            </div>
+        </div>
+    </form>
+
+
+    {% block morejs %}
+        <script>
+
+            $(document).ready(function () {
+                preview_excel('exp', 'datatable', 'divergence_table');
+            });
+
+
+            function reload_data() {
+                $("#datatable").html('');
+                let load_spinner = document.getElementById('spinner');
+                load_spinner.hidden = false;
+
+                $.ajax({
+                    type: "GET",
+                    url: '{{ '/divergence_table/' }}',
+                    data: {
+                        dts_begin: $('#dts_begin').val(),
+                        dts_end: $('#dts_end').val(),
+                    },
+                    success: function callback(data) {
+                        $("#datatable").html(data);
+                        load_spinner.hidden = true;
+                        preview_excel('exp', 'datatable', 'divergence_table');
+                    }
+                });
+            };
+        </script>
+
+    {% endblock morejs %}
+
+{% endblock %}

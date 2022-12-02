@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% load filtertags %}
+
+{% block title %}
+    Табель "{{ sheet_shop }}" за "{{ dts }}" {{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+    <form action="" method="post" enctype="multipart/form-data">
+
+        <ol class="breadcrumb float-sm-right">
+            <li>
+                <input type="submit" class="btn btn-success" value="Табель" name="close_table">
+                <input type="submit" class="btn btn-primary" value="Закрыть" name="close_table">
+            </li>
+        </ol>
+
+        <ol class="breadcrumb float-sm-left">
+            <li>
+                <input type="submit" class="btn btn-success" value="Добавить Подработку" name="close_table">
+                <input type="submit" class="btn btn-success" value="Добавить Совмещение" name="close_table">
+            </li>
+        </ol>
+
+        {% csrf_token %}
+        <table id="data_coworker" class="table table-bordered table-sm">
+            <thead class="thead-light">
+            <tr>
+                <th rowspan="2" align="center" valign="middle">Дата</th>
+                <th align="center" valign="middle">Сотрудник</th>
+                <th align="center" valign="middle">Структурная Единица</th>
+                <th rowspan="2" align="center" valign="middle">Заменяемый</th>
+                <th align="center" valign="middle">Должность</th>
+                <th align="center" valign="middle">График</th>
+                <th align="center" valign="middle">Совмещение</th>
+                {% if hidden_h %}
+                    <th align="center" valign="middle">Часы</th>
+                {% endif %}
+                <th align="center" valign="middle">Служебная Записка</th>
+                <th>Примечение</th>
+                <th>Скан заявления</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for data in dataset %}
+                <tr>
+                    <td>{{ data.dts }}</td>
+                    <td>{{ data.coworker_guid }}</td>
+                    <td>{{ data.coworker_enterprise_guid }}</td>
+                    <td>{{ data.foworker_guid }}</td>
+                    <td>{{ data.position_guid }}</td>
+                    <td>{{ data.shedule_guid }}</td>
+                    <td align="center" valign="middle">
+                        {% if  data.cowork_state  == 1 %}
+                            <input class="checkbox-row" type="checkbox"
+                                   disabled="true" value="on">
+                        {% else %}
+                            <input class="checkbox-row" type="checkbox" value="off" disabled="true">
+                        {% endif %}
+                    </td>
+                    {% if hidden_h %}
+                        <td>{{ data.count_hours }}</td>
+                    {% endif %}
+                    <td align="center" valign="middle">
+                        {% if data.service_note == 1 %}
+                            <input class="checkbox-row" type="checkbox"
+                                   checked onchange="ch_service_note('{{ data.guid }}')"
+                                    {% if not hidden_h %}
+                                   disabled
+                                    {% endif %}>
+                        {% else %}
+                            <input class="checkbox-row" type="checkbox" onclick="ch_service_note('{{ data.guid }}')"
+                                    {% if not hidden_h %}
+                                   disabled
+                                    {% endif %}>
+                        {% endif %}
+                    </td>
+                    <td>{{ data.note }}</td>
+                    <td>
+                        {% if data.img|length > 0 %}
+                            <div class="btn-group-sm">
+                                <nav class="fa-header navbar navbar-expand navbar-light">
+                                    <ul class="navbar-nav">
+                                        <li class="nav-item d-none d-sm-inline-block"><a
+                                                href="{{ data.img.0.image.url }}"
+                                                title="скан заявления" target="_blank"
+                                                class="nav-link"><i
+                                                class="fa fa-file-image"></i></a></li>
+                                        <li class="nav-item d-none d-sm-inline-block"><a
+                                                title="Загрузить новый скан"
+                                                class="nav-link"
+                                                onclick="add_image('{{ data.guid }}')"><i
+                                                class="fa fa-file-upload"></i></a></li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        {% else %}
+                            <a class="button" title="Загрузить новый скан" class="nav-link"
+                               onclick="add_image('{{ data.guid }}')"><i
+                                    class="fa fa-file-upload"></i></a>
+                        {% endif %}
+                    </td>
+                    {% if data.cowork_local == 0  or user.profileuser.otiz %}
+                        <td>
+                            <a href="{% url 'deleted_cowork' data.guid enterprise data.coworker_guid.guid dts.year dts.month dts.day %}">Удалить</a>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <input type="hidden" name="enterprise" value={{ enterprise }}>
+        <input type="hidden" name="month" value={{ dts.month }}>
+        <input type="hidden" name="year" value={{ dts.year }}>
+        <input type="hidden" name="day" value={{ dts.day }}>
+        <input type="hidden" name="len_str" value={{ len_str }}>
+
+        <!--MODAL-->
+        <div class="modal bd-example-centered" id="ModalWindow" tabindex="-1" role="dialog" aria-labelledby="ModalWindowLg"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    Идет загрузка данных...
+                </div>
+                <a href="#close-modal" rel="modal:close" class="close-modal ">Close</a>
+            </div>
+        </div>
+
+    </form>
+
+    {% block morejs %}
+
+        <script>
+
+            document.onclick = function (e) {
+                $("#ModalWindow").on('hide.bs.modal', function () {
+
+                });
+            };
+
+            function sel_onchange(guid_p, amount_p, guid_f, amount_f) {
+                if (guid_p == guid_f) {
+                    var str = '';
+                    str = amount_p.replace(",", ".");
+                    amount_f.value = parseFloat(str);
+                } else {
+                    amount_f.value = 0;
+                }
+            };
+
+            function ch_service_note(guid) {
+                $.ajax({
+                        type: "POST",
+                        url: '{{ '/ajax_record_service_note/' }}',
+
+                        data: {
+                            csrfmiddlewaretoken: '{{ csrf_token }}',
+                            guid: guid,
+                        },
+                        success: function callback(response) {
+                            location.reload()
+                        }
+                    }
+                )
+            };
+
+            function add_image(guid) {
+                let urls = '/add_image/?guid=' + guid;
+                {#window.open(urls, "", "width=600,height=600");#}
+                $("#ModalWindow").modal("show");
+                $("#ModalWindow .modal-content").html('Идет загрузка данных...');
+                $.ajax({
+                    url: urls,
+                    type: 'get',
+                    success: function (data) {
+                        $("#ModalWindow .modal-content").html(data);
+                    }
+                })
+            };
+
+            function sumbit_form(guid) {
+                let urls = '/add_image/?guid=' + guid;
+
+                let file_upload = document.getElementById("uploader");
+
+                var formdata = new FormData();
+                formdata.append('uploader', file_upload.files[0]);
+                formdata.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                $.ajax({
+                    url: urls,
+                    type: 'POST',
+                    data: formdata,
+                    processData: false,
+                    contentType: false,
+                    enctype: "multipart/form-data",
+                    success: function () {
+                        $("#ModalWindow").modal("hide");
+                        {#$("#ModalWindow").dispose();#}
+                        location.reload();
+                    }
+                });
+            };
+        </script>
+
+    {% endblock morejs %}
+
+{% endblock %}

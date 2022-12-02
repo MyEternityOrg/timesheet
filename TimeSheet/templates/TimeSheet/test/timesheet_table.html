@@ -1,0 +1,81 @@
+{% extends 'base_copy.html' %}
+{% load static %}
+{% load l10n %}
+
+{% block title %}
+{% localize on %}
+Табель "{{ sheet_shop }}" за "{{ date_sheet }}" {{ block.super }}
+{% endlocalize %}
+{% endblock %}
+
+{% block content %}
+
+<form action="" method="post">
+    {% csrf_token %}
+
+    <table id="datatable"  class="table table-bordered table-sm">
+        <thead class="thead-light"><tr>
+            <th rowspan="2">Сотрудник</th>
+            <th rowspan="2">Должность</th>
+            <th rowspan="2">График</th>
+            {% for date in list_date %}
+            {% if date.day_week == "Вс" %}
+                <th bgcolor="red"><a href="{% url 'edit-table' enterprise date.date %}">{{ date.date.day }}</a></th>
+            {% else %}
+                <th><a href="{% url 'edit-table' enterprise date.date %}">{{ date.date.day }}</a></th>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        <tr>
+             {% for date in list_date %}
+            <th><a href="{% url 'edit-table' enterprise date.date %}">{{ date.day_week }}</a></th>
+            {% endfor %}
+        </tr>
+         </thead>
+        <tbody>
+        <tr>
+            {% for detail in data %}
+            <tr>
+            <td>{{ detail.person }}</td>
+            <td>{{ detail.position }}</td>
+            <td>{{ detail.shedule }}</td>
+                {% for date in detail.date %}
+                {% if date.day_week == 6 or date.day_week == 5 %}
+                    <td bgcolor="#FFC9C9">
+                        {{ date.busy_key }}
+                        {% if date.hours > 0 %}
+                        <br>
+                        {{ date.hours }}
+                        </br>
+                        {% endif %}
+                    </td>
+                {% else %}
+                    <td>
+                        {{ date.busy_key }}
+                        {% if date.hours > 0 %}
+                        <br>
+                        {{ date.hours }}
+                        </br>
+                        {% endif %}
+                    </td>
+                {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tr>
+        </tbody>
+    </table>
+
+    <input type="hidden" name="enterprise_guid" value={{enterprise}}>
+
+</form>
+
+{% block morejs %}
+<script>
+  $('#datatable').DataTable({
+  });
+</script>
+
+{% endblock morejs %}
+
+{% endblock %}

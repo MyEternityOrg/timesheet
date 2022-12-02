@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block title %}
+    {{ title }} №{{ edit_sheet.number_doc }} от {{ edit_sheet.dd }}
+{% endblock %}
+
+{% block content %}
+
+    <form action="" method="post">
+
+        {% csrf_token %}
+
+        <div id="layoutSidenav_content">
+            <div>
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col">
+                            <div class="input-group mb-2">
+                                <label class="input-group-text">Дата табеля: </label>
+                                <input type="text" value="{{ link_obj.p_uid.dts }}" disabled>
+                            </div>
+                            <div class="input-group mb-2">
+                                <label class="input-group-text">Сотрудник: </label>
+                                <input type="text" value="{{ link_obj.p_uid.person_guid }}"
+                                       size="70"
+                                       disabled>
+                            </div>
+                            <div class="input-group mb-2">
+                                <label class="input-group-text">Должность: </label>
+                                <input type="text" value="{{ link_obj.p_uid.position_guid }}"
+                                       size="70"
+                                       disabled>
+                            </div>
+                            <div class="input-group mb-2">
+                                <label class="input-group-text">График: </label>
+                                <input type="text" value="{{ link_obj.p_uid.shedule_guid }}"
+                                       size="70"
+                                       disabled>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-sm-auto">
+                                    <label class="input-group-text">Код план: </label>
+                                    <input type="text" value="{{ link_obj.p_uid.busy_key_guid }}"
+                                           disabled>
+                                </div>
+                                <div class=col-sm-auto">
+                                    <label class="input-group-text">Код факт: </label>
+                                    <input type="text" value="{{ link_obj.busy_key_fact }}"
+                                           disabled>
+                                </div>
+                            </div>
+                            <div class="input-group mb-2">
+                                <label class="input-group-text">Код новый: </label>
+                                <input type="text" value="{{ edit_sheet.busy_key_t }}" disabled>
+                            </div>
+                            <div class="input-group mb-2">
+                                <label class="input-group-text">Описание заявки(служебная записка): </label>
+                                <div>
+                                        <textarea class="small" name="comment" id="comment" cols="70" rows="5"
+                                                  disabled>{{ all_status.0.comment }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="row mb-auto">
+                                <div class="input-group mb-3 col-sm-auto">
+                                    <label class="input-group-text">Статус: </label>
+                                    <select id="id_status_check" name="status_check"
+                                            {% if not user.profileuser.entreprise is None %}
+                                            disabled
+                                            {% elif now_status.status_id.finished %}
+                                            disabled
+                                            {% elif now_status.status_id.belong_to == 'otiz' and not user.profileuser.otiz %}
+                                            disabled
+                                            {% elif now_status.status_id.belong_to == 'sb' and not user.profileuser.sb %}
+                                            disabled
+                                            {% elif user.profileuser.sb and now_status.status_id.id == 4 %}
+                                            disabled
+                                            {% endif %}>
+                                        <option value="{{ now_status.status_id.id }}"
+                                                selected="selected">{{ now_status.status_id }}</option>
+                                        {% for cn in list_checks_name_next %}
+                                            <option value="{{ cn.id }}">{{ cn }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="input-group mb-3">
+                                <label class="input-group-text">Описание решения: </label>
+                                <div>
+                                        <textarea name="matcher_note" id="matcher_note" cols="70" rows="5"
+                                                {% if not user.profileuser.entreprise is None %}
+                                            disabled
+                                            {% elif now_status.status_id.finished %}
+                                            disabled
+{#                                            {% elif now_status.status_id.belong_to == 'otiz' and not user.profileuser.otiz %}#}
+{#                                            disabled#}
+{#                                            {% elif now_status.status_id.belong_to == 'sb' and not user.profileuser.sb %}#}
+{#                                            disabled#}
+                                            {% endif %}></textarea>
+                                </div>
+                            </div>
+                            <label class="input-group-text">История статусов: </label>
+                            <div class="input-group mb-2">
+{#                                <label class="input-group-text">История статусов: </label>#}
+                                <div>
+                                    <table class="table table-bordered table-sm" disabled="">
+                                        <tbody>
+                                        {% for st in all_status %}
+                                            <tr class="small">
+                                                <td>{{ st.dts }}</td>
+                                                <td>{{ st.status_id }}</td>
+                                                <td>{{ st.comment }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-2" style="margin-top: 33px;">
+                                <input class="btn btn-info btn-block" type="submit" value="Сохранить">
+                            </div>
+                            <div class="col-lg-2" style="margin-top: 33px;">
+                                <a href="{% url 'shift_data_f_checks' %}"><input class="btn btn-info btn-block"
+                                                                                 value="Закрыть"></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+    {% block morejs %}
+
+        <script>
+        </script>
+
+    {% endblock morejs %}
+
+{% endblock %}

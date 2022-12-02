@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load widget_tweaks %}
+{% load static %}
+
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+
+
+
+    <form id="form_upload_data" action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="input-group mb-3">
+            <label class="input-group-text" for="uploader">Заявление</label>
+            <input type="file" class="form-control" id="uploader" name="uploader" accept="image/jpeg"/>
+{#            <button type="button" id="save" style="display: none" onclick="save_img('{{ guid }}')"><i#}
+            <button id="save" type="button" style="display: none" data-bs-dismiss="modal" onclick="sumbit_form('{{ guid }}')"><i
+                                    class="fa fa-save"></i>Сохранить</button>
+        </div>
+
+        <canvas id="canvas_id" name="canvas_id"></canvas>
+
+    </form>
+
+
+
+    {% block morejs %}
+        <script>
+
+            var canvas_id = document.getElementById("canvas_id");
+            var ctx = canvas_id.getContext("2d");
+
+            var reader = new FileReader();
+            var img = new Image();
+            var max_width = 220;
+            var max_height = 320;
+
+            var uploadImage = (e) => {
+                if (!e.target.files[0].type.match(/image.jpeg/)) {
+                    alert('Нужно выбрать скан заявления. Формат jpeg!');
+                    uploader.value = "";
+                    img.src = '';
+                    return false;
+                }else {
+                    reader.onload = () => {
+                        img.onload = () => {
+                            canvas_id.width = max_width;
+                            canvas_id.height = max_height;
+                            ctx.drawImage(img, 0, 0, max_width, max_height);
+                        };
+                        img.src = reader.result;
+                        document.getElementById("save").style.display = "inline";
+                    };
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            };
+
+            var imageLoader = document.getElementById("uploader");
+            imageLoader.addEventListener("change", uploadImage);
+
+        </script>
+
+    {% endblock morejs %}
+
+{% endblock %}

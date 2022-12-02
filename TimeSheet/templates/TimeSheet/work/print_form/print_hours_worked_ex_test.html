@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load l10n %}
+
+
+{% block title %}
+    {% localize on %}
+        Отчет по отработанному времни: {{ dts_begin }} - {{ dts_end }}{{ block.super }}
+    {% endlocalize %}
+
+{% endblock %}
+
+{% block content %}
+
+    <form action="" method="post">
+        <style>
+            .descr {
+                display: none;
+                opacity: 0;
+            }
+        </style>
+
+        {% csrf_token %}
+        <p><label for="dts_begin">Периода с: </label><input type="date" name="dts_begin" required="" id="dts_begin"
+                                                            value={{ dts_begin }}>
+            <label for="dts_end"> по: </label><input type="date" name="dts_end" required="" id="dts_end"
+                                                     value={{ dts_end }}>
+            <label for="enterprise"> по: </label><input type="text" name="enterprise_guid_to_label" required=""
+                                                        id="enterprise_guid_to_label" value="--Выберите подразделение--"
+                                                        size="50" disabled><input type="button" value="..."
+                                                                                  onclick="myWindowEnter()">
+            <input type="submit" class="btn btn-success" value="Сформировать" name="close_table"></p>
+
+        <table id="datatable" class="table table-bordered table-hover">
+            <thead class="thead-light">
+            <tr>
+                <th>Сотрудник</th>
+                <th>Подразделение</th>
+                <th>Должность</th>
+                <th>Кол-во дней</th>
+                <th>Даты месяца выхода в РВ</th>
+            </tr>
+            </thead>
+            <tbody>
+            <div class="accordion" id="accordionExample">
+                {% for rowdata in init %}
+                    <div class="accordion-item">
+                        <div class="accordion-header" id="heading{{ forloop.counter0 }}">
+                            <tr>
+                                <td><strong>{{ rowdata.person_guid }}</strong>
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapse{{ forloop.counter0 }}" aria-expanded="true"
+                                            aria-controls="collapse{{ forloop.counter0 }}"
+                                            onclick="tr_hidden('hidden-row{{ forloop.counter0 }}')">
+                                        +
+                                    </button>
+                                </td>
+                                <td><strong>{{ rowdata.enterprise }}</strong></td>
+                                <td><strong>{{ rowdata.position }}</strong></td>
+                                <td><strong>{{ rowdata.days_cnt }}</strong></td>
+                                <td></td>
+                            </tr>
+                        </div>
+                        <div id="hidden-row{{ forloop.counter0 }}">
+                        <div id="collapse{{ forloop.counter0 }}"
+                                         class="accordion-collapse collapse show"
+                                         aria-labelledby="heading{{ forloop.counter0 }}"
+                                         data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                        {% for detail_row in rowdata.detail %}
+                            <tr>
+                                <td>
+                                    <div id="collapse{{ forloop.parentloop.counter0 }}"
+                                         class="accordion-collapse collapse show"
+                                         aria-labelledby="heading{{ forloop.parentloop.counter0 }}"
+                                         data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            {{ detail_row.person_guid }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div id="collapse{{ forloop.parentloop.counter0 }}"
+                                         class="accordion-collapse collapse show"
+                                         aria-labelledby="heading{{ forloop.parentloop.counter0 }}"
+                                         data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">{{ detail_row.enterprise }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div id="collapse{{ forloop.parentloop.counter0 }}"
+                                         class="accordion-collapse collapse show"
+                                         aria-labelledby="heading{{ forloop.parentloop.counter0 }}"
+                                         data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">{{ detail_row.position }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div id="collapse{{ forloop.parentloop.counter0 }}"
+                                         class="accordion-collapse collapse show"
+                                         aria-labelledby="heading{{ forloop.parentloop.counter0 }}"
+                                         data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">{{ detail_row.days_cnt }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div id="collapse{{ forloop.parentloop.counter0 }}"
+                                         class="accordion-collapse collapse show"
+                                         aria-labelledby="heading{{ forloop.parentloop.counter0 }}"
+                                         data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">{{ detail_row.cw_data }}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                                        </div>
+                        </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            </tbody>
+
+
+            <input type="hidden" name="enterprise_guid" id="enterprise_guid" value={{ enterprise_guid }}>
+            {#    <input type="hidden" name="dts_begin" id="dts_begin" value={{ dts_begin }}>#}
+            {#    <input type="hidden" name="dts_end" id="dts_end" value={{ dts_end }}>#}
+        </table>
+    </form>
+
+    {% block morejs %}
+
+        <script>
+            function myWindowEnter() {
+                var _url = '/select_enterprise';
+                window.open(_url, "", "width=600,height=600");
+            };
+
+
+            function set_ent(val) {
+                $("#enterprise_guid_to_label").val(val.substr(37));
+                $("#enterprise_guid").val(val.substr(0, 36));
+            }
+
+            function myWindow() {
+
+
+                location.reload()
+            };
+
+            function tr_hidden(id) {
+
+                 let elements = document.querySelectorAll(id);
+
+                  for (let elem of elements) {
+                    alert(elem.innerHTML); // "тест", "пройден"
+                  }
+                {#if ((sc = document.getElementById(id)).className) sc.className = ''; else sc.className = 'descr';#}
+                {#dd = document.g#}
+            }
+
+        </script>
+
+
+
+    {% endblock morejs %}
+{% endblock %}
+

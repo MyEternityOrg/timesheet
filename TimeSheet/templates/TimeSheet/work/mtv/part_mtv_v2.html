@@ -1,0 +1,97 @@
+{% load static %}
+{% load l10n %}
+
+<table border="1" id="datatable_mtv" class="table table-bordered border-dark table-sm table-hover table-striped">
+    <thead class="thead-light">
+    <tr>
+        <th>Сотрудник</th>
+        <th>Подразделение</th>
+        <th>Должность</th>
+        <th>Количество чеков</th>
+        <th>Скорость</th>
+        <th>Кол-во дней</th>
+        {% if  user.profileuser.otiz %}
+            <th>Сумма с НДФЛ</th>
+        {% else %}
+            <th>Сумма без НДФЛ</th>
+        {% endif %}
+    </tr>
+    </thead>
+    <tbody>
+         {% for row in init %}
+                <tr {% if user.profileuser.otiz and row.person_guid in resigned_list %} class="text-danger fw-bold"
+                                                                                        style="color:#FF0000" {% endif %}>
+                    <td {% if row.mc > 14 and row.prize > 0 %} bgcolor="#98fb98" class="table-success" {% elif row.mc == 14 and row.prize > 0 %}
+                                             bgcolor="#fafad2"
+                                             class="table-warning"{% endif %}>{{ row.person_guid }}</td>
+                    <td {% if row.mc > 14 and row.prize > 0%} bgcolor="#98fb98" class="table-success" {% elif row.mc == 14 and row.prize > 0%}
+                                             bgcolor="#fafad2"
+                                             class="table-warning"{% endif %}>{{ row.enterprise_guid }}</td>
+                    <td {% if row.mc > 14 and row.prize > 0%} bgcolor="#98fb98" class="table-success" {% elif row.mc == 14 and row.prize > 0%}
+                                             bgcolor="#fafad2"
+                                             class="table-warning"{% endif %}>{{ row.position_guid }}</td>
+                    <td {% if row.mc >= 4 %} bgcolor="#98fb98"
+                                             class="table-success"{% endif %}>{{ row.checks_count }}</td>
+                    <td {% if row.mc in l_yel %} bgcolor="#fafad2"
+                                              class="table-warning" {% elif row.mc in l_grn %}
+                                              bgcolor="#98fb98"
+                                              class="table-success" {% endif %}>{{ row.speed_avg }}</td>
+                    <td {% if row.mc > 14 and row.prize > 0%} bgcolor="#98fb98" class="table-success" {% elif row.mc == 14 and row.prize > 0%}
+                                             bgcolor="#fafad2" class="table-warning"{% endif %}>{{ row.f_amt }}</td>
+                    {% if  user.profileuser.otiz %}
+                        <td {% if row.mc > 14 and row.prize > 0%} bgcolor="#98fb98" class="table-success" {% elif row.mc == 14 and row.prize > 0%}
+                                                 bgcolor="#fafad2"
+                                                 class="table-warning"{% endif %}>{{ row.prize|floatformat:2 }}</td>
+                    {% else %}
+                        <td {% if row.mc > 14 and row.prize > 0%} bgcolor="#98fb98" class="table-success" {% elif row.mc == 14 and row.prize > 0%}
+                                                 bgcolor="#fafad2"
+                                                 class="table-warning"{% endif %}>{{ row.prize_view|floatformat:2 }}</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+    {% for row in init_header %}
+        <tr {% if user.profileuser.otiz and row.person_guid in resigned_list %} class="text-danger fw-bold"
+                                                                                style="color:#FF0000" {% endif %}>
+            <td {% if row.mc == 3 %} bgcolor="#98fb98"
+                                     class="table-success" {% endif %}>{{ row.person_guid }}</td>
+            <td {% if row.mc == 3 %} bgcolor="#98fb98"
+                                     class="table-success" {% endif %}>{{ row.enterprise_guid }}</td>
+            <td {% if row.mc == 3 %} bgcolor="#98fb98"
+                                     class="table-success" {% endif %}>{{ row.position_guid }}</td>
+            <td {% if row.mc == 3 %} bgcolor="#98fb98" class="table-success" {% endif %}></td>
+            <td {% if row.mc == 2 %} bgcolor="#fafad2"
+                                     class="table-warning" {% elif row.mc == 3%}
+                                     bgcolor="#98fb98"
+                                     class="table-success" {% endif %}>{{ row.speed_avg }}</td>
+            <td {% if row.mc == 3 %} bgcolor="#98fb98" class="table-success" {% endif %}>{{ row.f_amt }}</td>
+            {% if  user.profileuser.otiz %}
+                <td {% if row.mc == 3 %} bgcolor="#98fb98"
+                                         class="table-success" {% endif %}>{{ row.prize|floatformat:2 }}</td>
+            {% else %}
+                <td {% if row.mc == 3 %} bgcolor="#98fb98"
+                                         class="table-success" {% endif %}>{{ row.prize_view|floatformat:2 }}</td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<!-- REQUIRED SCRIPTS -->
+<!-- jQuery -->
+<script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'dist/js/jquery.formset.js' %}"></script>
+<!-- Bootstrap -->
+<script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'plugins/toastr/toastr.min.js' %}"></script>
+<!-- overlayScrollbars -->
+<script
+        src="{% static 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
+
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.js' %}"></script>
+
+<!-- OPTIONAL SCRIPTS -->
+<script src="{% static 'dist/js/demo.js' %}"></script>
+
+<script src="{% static 'plugins/jquery/jquery.floatThead.js' %}"></script>
+<script src="{% static 'plugins/jquery/jquery.floatThead.min.js' %}"></script>

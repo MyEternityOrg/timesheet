@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Табель :: {{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+<h1>Табель видишь? А он есть!</h1>
+
+<form action="" method="post">
+    {% csrf_token %}
+{% for form in formset %}
+    <table class="table table-sm table-bordered table-dark">>
+    {{ form.as_table }}
+        {{form.busy_key_fact}}
+    </table>
+{% endfor %}
+
+    <button type="submit" class="btn btn-primary btn-block">Сохранить табель</button>
+</form>
+
+{% endblock %}

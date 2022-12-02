@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% load filtertags %}
+
+{% block title %}
+Версии табелирования "{{ sheet_shop }}" за "{{ dts }}" {{ block.super }}
+    Сотрудник "{{ en_person }}"
+{% endblock %}
+
+{% block content %}
+
+<form action="" method="post">
+      {% csrf_token %}
+
+      <div class="fixed-table-toolbar">
+            <div class="float-right search btn-group">
+                  <input class="form-control search-input" id="mySearch" type="search" placeholder="Search" autocomplete="off">
+            </div>
+
+
+            <table id="datatable" class="table table-bordered table-hover" data-page-length='100'>
+                  <thead class="thead-light">
+                  <tr>
+                      <th>S/N</th>
+                      <th>Дата версии</th>
+                      <th>Дата табель</th>
+                      <th>Автор</th>
+                      <th>Должность</th>
+                      <th>График</th>
+                      <th>Код Занятости План</th>
+                      <th>Код Занятости Факт</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+
+                  {% for rowdata in init %}
+                      <tr>
+                          <td>{{ forloop.counter }}</td>
+                          <td>{{ rowdata.dts }}</td>
+                          <td>{{ rowdata.f_plan_uid.p_uid.dts }}</td>
+                          <td>{{ rowdata.author }}</td>
+                          <td>{{ rowdata.f_plan_uid.p_uid.position_guid }}</td>
+                          <td>{{ rowdata.p_shedule_guid }}</td>
+                          <td>{{ rowdata.p_busy_key_guid }}</td>
+                          <td>{{ rowdata.f_busy_key_uid }}</td>
+                      </tr>
+                  {% endfor %}
+                  </tbody>
+            </table>
+
+      </div>
+
+      <input type="hidden" name="person" value={{person}}>
+      <input type="hidden" name="person" value={{p_uid}}>
+</form>
+
+{% block morejs %}
+
+<script>
+
+ $('#datatable').DataTable();
+
+</script>
+
+{% endblock morejs %}
+
+{% endblock %}

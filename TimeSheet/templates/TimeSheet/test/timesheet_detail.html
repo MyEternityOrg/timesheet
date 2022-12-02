@@ -1,0 +1,110 @@
+{% extends 'base_copy.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% load filtertags %}
+
+{% block title %}
+Табель "{{ sheet_shop }}" за "{{ dts }}" {{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+
+
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Основное</a>
+  </li>
+  <li class="nav-item" role="presentation">
+    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Подработки/Совмещения</a>
+  </li>
+  <li class="nav-item" role="presentation">
+    <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Ревизия</a>
+  </li>
+</ul>
+   <form action="" method="post">
+    {% csrf_token %}
+       <div class="tab-content" id="myTabContent">
+           <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+
+                <table  id="table_sheet" class="table table-bordered table-sm">
+                    <thead><tr>
+                        {% for form in formset %}
+                            {% if forloop.first %}
+                                <th rowspan="2">{{ 'Сотрудник' }}</th>
+                                <th>{{ 'Должность' }}</th>
+                                <th rowspan="2">{{ 'План' }}</th>
+                                <th rowspan="2">{{ 'Факт' }}</th>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        {% for form in formset %}
+                            {% if forloop.first %}
+                                <th>{{ 'График' }}</th>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for form in formset %}
+                    <tr>
+                            <td rowspan="2"> {{ form.instance.person_guid }}</td>
+                            <td> {{ form.instance.position_guid }}</td>
+                            <td> {{ form.instance.busy_key_guid }}</td>
+
+                        {% for form_f in form_fact %}
+                            {% if form_f.p_uid.p_uid == form.visible_fields.2 %}
+                                <td> {{ form_f.visible_fields.0 | add_class:"form-control form-control-sm" }}</td>
+                            {% endif %}
+                        {% endfor %}
+                        <td> <select name="form-busy_key_guid_{{forloop.counter0}}" class="form-control form-control-sm" id="id_form-busy_key_guid">
+                        {% for listbusy in tag_fact|get_item:form.visible_fields.2.value %}
+                            {% if forloop.first %}
+                                {% for busy in listbusy %}
+                                    {% if busy.select == 1 %}
+                                        <option value = {{busy.guid}} selected> {{busy.key}} </option>
+                                    {% else%}
+                                        <option value = {{busy.guid}}> {{busy.key}} </option>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                        </select></td>
+                        <td style="display: none;"> {{ form.visible_fields.2 }}</td>
+
+                    </tr>
+                     <tr>
+                            <td> {{ form.instance.shedule_guid }}</td>
+                            <td> {{ form.instance.hours_all }}</td>
+                          {% for listbusy in tag_fact|get_item:form.visible_fields.2.value %}
+                            {% if forloop.last %}
+                                <td> <input type="number" name="form_fact_amount_{{forloop.parentloop.counter0}}" value={{listbusy|floatformat}} step="any" class="form-control form-control-sm" id="id_form_fact_amount"></td>
+                            {% endif %}
+                          {% endfor %}
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+           </div>
+           <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">Таблица подработок</div>
+           <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">Таблица ревизий</div>
+       </div>
+
+<input type="hidden" name="enterprise" value={{enterprise}}>
+<input type="hidden" name="month" value={{dts.month}}>
+<input type="hidden" name="year" value={{dts.year}}>
+<input type="hidden" name="len_str" value={{len_str}}>
+
+<input type="submit" class="btn btn-success" value="Сохранить">
+</form>
+
+{% block morejs %}
+<script>
+  $('#table_sheet').DataTable({
+  });
+</script>
+
+{% endblock morejs %}
+
+{% endblock %}

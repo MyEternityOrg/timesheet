@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load l10n %}
+
+
+{% block title %}
+    {% localize on %}
+        Отчет по превышению РВ над Я
+    {% endlocalize %}
+{% endblock %}
+
+{% block content %}
+
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="mb-2">
+            <label for="dts_begin">Периода с: </label><input type="date" name="dts_begin" required="" id="dts_begin"
+                                                             value={{ dts_begin }}>
+            <label for="dts_end"> по: </label><input type="date" name="dts_end" required="" id="dts_end"
+                                                     value={{ dts_end }}>
+            <button type="button" class="btn btn-success" name="close_table" onclick="reload_data()">Сформировать
+            </button>
+        </div>
+
+        {#    <label for="enterprise"></label><input type="text" name="enterprise_guid_to_label" required=""#}
+        {#                                               id="enterprise_guid_to_label" value="--Выберите подразделение--"#}
+        {#                                               size="50" disabled><input type="button" value="..."#}
+        {#                                                                         onclick="myWindowEnter()">#}
+
+        <div id="layoutSidenav_content">
+            <div>
+                <div class="container-fluid">
+                    <div class="row mb-3">
+                        <div class="col col-sm-auto mb-auto">
+                            <div class="input-group mb-1">
+                                <input type="text" class="form-control" required="" id="enterprise_guid_to_label"
+                                       placeholder="--Выберите подразделение--"
+                                       aria-label="--Выберите подразделение--" size="50" disabled>
+                                <button class="btn btn-outline-secondary btn-sm" type="button"
+                                        onclick="myWindowEnter()">...
+                                </button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="clear_ent()">X</button>
+                            </div>
+                        </div>
+                        <div class="col col-sm-auto mb-auto">
+                            <div class="input-group mb-1">
+                                <input type="text" class="form-control" required="" id="personal"
+                                       placeholder="--Выберите сотрудника--"
+                                       aria-label="--Выберите сотрудника--" size="50" disabled>
+                                <button class="btn btn-outline-secondary btn-sm" type="button" onclick="mypersonal()">
+                                    ...
+                                </button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="clear_pes()">X</button>
+                            </div>
+                        </div>
+                        <div>
+                            <a id="exp" type="button" class="btn btn-outline-primary">Сохранить в Excel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {#    <input type="text" name="personal_to_label" required="" id="personal"#}
+        {#                                             value="--Выберите сотрудника--" size="50" disabled>#}
+        {#    <input type="button" value="..." onclick="mypersonal()">#}
+
+        <table  border="1" id="datatablePers" class="table table-bordered table-sm table-hover table-striped">
+            <thead class="thead-light">
+            <tr>
+                <th>Сотрудник</th>
+                <th>Подразделение</th>
+                <th>Должность</th>
+                <th>Итого РВ</th>
+                <th>Итого Я</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for row in init %}
+                <tr>
+                    <td>{{ row.person }}</td>
+                    <td>{{ row.ent }}</td>
+                    <td>{{ row.pos }}</td>
+                    <td>{{ row.count_bk_rv }}</td>
+                    <td>{{ row.count_bk_i }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="text-center">
+            <div class="spinner-border" id='spinner' style="width: 3rem; height: 3rem;" role="status" hidden>
+                <span class="visually-hidden"></span>
+            </div>
+        </div>
+
+        <input type="hidden" name="enterprise_guid" id="enterprise_guid" value={{ enterprise_guid }}>
+        <input type="hidden" name="personal_guid" id="personal_guid" value={{ personal_guid }}>
+        {#    <input type="hidden" name="dts_begin" id="dts_begin" value={{ dts_begin }}>#}
+        {#    <input type="hidden" name="dts_end" id="dts_end" value={{ dts_end }}>#}
+
+        <!--MODAL-->
+        <div class="modal bd-example-modal-lg" id="ModalWindow" tabindex="-1" role="dialog"
+             aria-labelledby="ModalWindowLg"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                {% include "TimeSheet/part_form/spinner_small.html" %}
+                <div class="modal-content">
+                </div>
+                <a href="#close-modal" rel="modal:close" class="close-modal ">Close</a>
+            </div>
+        </div>
+    </form>
+
+    {% block morejs %}
+
+        <script>
+
+            $(document).ready(function () {
+                preview_excel('exp', 'datatablePers', 'excess_rv_i');
+            });
+
+            function myWindowEnter() {
+                {#var _url = '/select_enterprise';#}
+                {#window.open(_url, "", "width=600,height=600");#}
+                document.getElementById('spinner_small').hidden = false;
+                $("#ModalWindow .modal-content").html('Загрузка.....');
+                var _url = '/select_enterprise/';
+                $("#ModalWindow").modal("show");
+                $.ajax({
+                    url: _url,
+                    type: 'get',
+                    success: function (data) {
+                        $("#ModalWindow .modal-content").html(data);
+                        document.getElementById('spinner_small').hidden = true;
+                    }
+                })
+            };
+
+
+            function set_ent(val) {
+                $("#enterprise_guid_to_label").val(val.substr(37));
+                $("#enterprise_guid").val(val.substr(0, 36));
+                $("#ModalWindow").modal("hide");
+            }
+
+            function myWindow() {
+                location.reload()
+            };
+
+
+            function mypersonal() {
+                document.getElementById('spinner_small').hidden = false;
+                $("#ModalWindow .modal-content").html('Загрузка.....');
+                var _url = '/select_all_staff/';
+                $("#ModalWindow").modal("show");
+                {#$("#ModalWindow .modal-content").html('Идет загрузка данных...');#}
+                {#document.getElementById('spinner_modal').hidden = true;#}
+                $.ajax({
+                    url: _url,
+                    type: 'get',
+                    success: function (data) {
+                        $("#ModalWindow .modal-content").html(data);
+                        document.getElementById('spinner_small').hidden = true;
+                    }
+                })
+            };
+
+
+            function set_pes(guid, name) {
+                $('#personal').val(name);
+                $('#personal_guid').val(guid);
+                $("#ModalWindow").modal("hide");
+            };
+
+
+            function clear_ent() {
+                $("#enterprise_guid_to_label").val('');
+                $("#enterprise_guid").val('');
+            };
+
+            function clear_pes() {
+                $('#personal').val('');
+                $('#personal_guid').val('');
+            };
+
+            function reload_data() {
+                $("#datatablePers").html('');
+                let load_spinner = document.getElementById('spinner');
+                load_spinner.hidden = false;
+                $.ajax({
+                    type: "GET",
+                    url: '{{ '/print_excess_rv_i/' }}',
+                    data: {
+                        enterprise_guid: $('#enterprise_guid').val(),
+                        dts_begin: $('#dts_begin').val(),
+                        dts_end: $('#dts_end').val(),
+                        pers_guid: $('#personal_guid').val(),
+                    },
+                    success: function callback(data) {
+                        $("#datatablePers").html(data);
+                        load_spinner.hidden = true;
+                        preview_excel('exp', 'datatablePers', 'excess_rv_i');
+                    }
+                });
+            };
+
+            $('#datatable').DataTable({
+                responsive: true
+            });
+        </script>
+    {% endblock morejs %}
+{% endblock %}
+

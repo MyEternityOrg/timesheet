@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% load filtertags %}
+
+{% block title %}
+Табель "{{ sheet_shop }}" за "{{ dts }}" {{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+<form action="" method="post">
+
+    <ol class="breadcrumb float-sm-right">
+        <li>
+            <input type="submit" class="btn btn-success" value="Сохранить" name="close_table">
+            <input type="submit" class="btn btn-primary" value="Закрыть" name="close_table">
+        </li>
+    </ol>
+
+    {% csrf_token %}
+
+{#    <p><label for="enterprise_guid_to_label">Структурная Единица: </label> <input type="text" name="enterprise_guid_to_label" required="" id="enterprise_guid_to_label" value="--Выберите подразделение--" size="50" disabled><input type="button" value="..." onclick="myWindowEnter()"></p>#}
+    <p><label for="enterprise_guid_to_label">Структурная Единица: </label> <input type="text" name="enterprise_guid_to_label" required="" id="enterprise_guid_to_label" value='{{sheet_shop}}' size="50" disabled><input type="button" value="..." onclick="myWindowEnter()"></p>
+    <p><label for="person_guid_to_label">Сотрудник: </label><input type="text" name="person_guid_to_label" required="" id="person_guid_to_label" value="--Выберите сотрудника--" size="50" disabled><input type="button" value="..." onclick="myWindow()"></p>
+
+
+    <input type="hidden" name="enterprise" value={{enterprise}}>
+    <input type="hidden" name="month" value={{dts.month}}>
+    <input type="hidden" name="year" value={{dts.year}}>
+    <input type="hidden" name="day" value={{dts.day}}>
+    <input type="hidden" name="position_guid_to_val" id="position_guid_to_val" value="">
+
+    <input type="hidden" name="person_guid_to" id="person_guid_to" value="">
+    <input type="hidden" name="shedule_guid" id="shedule_guid"  value="">
+    <input type="hidden" name="count_hours" id="count_hours" value="">
+    <input type="hidden" name="enterprise_guid" id="enterprise_guid" value={{sheet_shop.guid}}>
+
+</form>
+
+
+'{% block morejs %}
+
+<script>
+
+function myWindow(){
+
+         en_se = $("#enterprise_guid").val();
+
+        var _url = '/' + en_se + '/' +  '{{dts.year}}' + '/' + '{{dts.month}}' + '/' + '{{dts.day}}/select_rework/';
+        window.open(_url, "", "width=600,height=600, status=yes, toolbar=no, menubar=no, location=no,addressbar=no");
+
+        };
+
+function myWindowEnter(){
+    var _url = '/select_enterprise';
+    window.open(_url, "", "width=600,height=600");
+        };
+
+function sel_onchange(init){
+    foworker_guid = $("#foworker_guid").find(":selected");
+    position_ = foworker_guid.val().substr(37,36);
+    sheduler_ = foworker_guid.val().substr(74,36);
+    count_hour= foworker_guid.val().substr(111);
+
+    $('#position_guid option:selected').each(function(){
+        this.selected=false;
+        });
+    $('#position_guid option').each(function(){
+        if (this.value==position_){
+           this.selected=true;
+        }
+        });
+
+    $("#position_guid_to_val").val(position_);
+    $("#shedule_guid").val(sheduler_);
+    $("#count_hours").val(count_hour);
+}
+
+
+function set_pes(val){
+    $("#person_guid_to_label").val(val.substr(112));
+    $("#person_guid_to").val(val.substr(0,36));
+}
+
+function set_ent(val){
+    $("#enterprise_guid_to_label").val(val.substr(37));
+    $("#enterprise_guid").val(val.substr(0,36));
+}
+
+</script>
+
+{% endblock morejs %}
+
+{% endblock %}

@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+
+    <form action="" method="post">
+
+        {% csrf_token %}
+
+        <div id="layoutSidenav_content">
+            <main>
+                <div class="container-fluid">
+                    <div class="card mt-auto">
+                        <div class="form-check">
+                            <div class="input-group mb-2">
+                                <label class="input-group-text">Дата табеля: </label>
+                                {% if state == 0 %}
+                                    <input type="text" value="{{ time_sheet_fact.p_uid.dts }}" disabled>
+                                {% else %}
+                                    <input type="text" value="{{ time_sheet_fact.dts }}" disabled>
+                                {% endif %}
+                            </div>
+                            <div class="input-group mb-2">
+                                <label class="input-group-text">Сотрудник: </label>
+                                {% if state == 0 %}
+                                    <input type="text" value="{{ time_sheet_fact.p_uid.person_guid }}" size="70" disabled>
+                                {% else %}
+                                    <input type="text" value="{{ time_sheet_fact.coworker_guid }}" size="70" disabled>
+                                {% endif %}
+                            </div>
+                            <div class="input-group mb-2">
+                                <label class="input-group-text">Должность: </label>
+                                {% if state == 0 %}
+                                    <input type="text" id="position_guid" value="{{ time_sheet_fact.p_uid.position_guid }}" size="70" disabled>
+                                {% else %}
+                                    <input type="text" id="position_guid" value="{{ time_sheet_fact.position_guid }}" size="70" disabled>
+                                {% endif %}
+                            </div>
+                            <div class="input-group mb-2">
+                                <label class="input-group-text">График: </label>
+                                {% if state == 0 %}
+                                    <input type="text" value="{{ time_sheet_fact.p_uid.shedule_guid }}" size="70" disabled>
+                                {% else %}
+                                    <input type="text" value="{{ time_sheet_fact.shedule_guid }}" size="70" disabled>
+                                {% endif %}
+                            </div>
+                            {% if state == 0 %}
+                                <div class="row mb-2">
+                                    <div class="col col-sm-auto">
+                                        <label class="input-group-text">Код план: </label>
+                                        <input type="text" value="{{ time_sheet_fact.p_uid.busy_key_guid }}" disabled>
+                                    </div>
+                                    <div class="col col-sm-auto">
+                                        <label class="input-group-text">Код факт: </label>
+                                        <input type="text" value="{{ time_sheet_fact.busy_key_fact }}" disabled>
+                                    </div>
+                                </div>
+                                <div class="input-group mb-2">
+                                    <label class="input-group-text">Код новый: </label>
+                                    <select id="busy_key_new" name="list_busy_key" onchange="sel_onchange('')">
+                                        <option value="" selected="selected">-----</option>
+                                        {% for bk in list_busy_key.values %}
+                                            <option value="{{ bk.guid }}">{{ bk }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            {% else %}
+                                <div class="input-group mb-2">
+                                    <label class="input-group-text">Подразделение: </label>
+                                    <input type="text" id="enterprise_guid" value="{{ time_sheet_fact.enterprise_guid }}" size="70" disabled>
+                                </div>
+                                {% if state == 2 %}
+                                    <div class="input-group mb-2">
+                                        <label class="input-group-text">Новая должность: </label>
+                                        <select name="new_position_guid" id="new_position_guid" disabled>
+                                            <option value="0000" selected>---------</option>
+                                            {% for pos in init_pos %}
+                                                <option value={{ pos.guid }}>{{ pos }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                {% else %}
+                                    <div class="input-group mb-2">
+                                        <label class="input-group-text">Заменяемый: </label>
+                                        <input type="text" id="foworker_guid" value="{{ time_sheet_fact.foworker_guid }}" size="70" disabled>
+                                    </div>
+                                     <div class="input-group mb-2">
+                                        <label class="input-group-text">Новый заменяемый: </label>
+                                        <input type="text" name="person_guid_to_label" required="" id="person_guid_to_label"
+                                               value="--Выберите сотрудника--"size="50" disabled>
+                                         <input type="button" value="..." onclick="myWindow()">
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                            <div class="input-group mb-2">
+                                <label class="input-group-text">Описание заявки(служебная записка): </label>
+                                <div>
+                                    <textarea name="comment" id="comment" cols="70" rows="5"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col col-lg-1" style="margin-top: 33px;">
+                            <input class="btn btn-info btn-block" type="submit" value="Сохранить">
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+      <!--MODAL-->
+        <div class="modal bd-example-modal-lg" id="ModalWindow" tabindex="-1" role="dialog" aria-labelledby="ModalWindowLg"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    Идет загрузка данных...
+                </div>
+                <a href="#close-modal" rel="modal:close" class="close-modal ">Close</a>
+            </div>
+        </div>
+
+        <input type="hidden" id="foworker" name="foworker" value='00000000-0000-0000-0000-000000000000'>
+        <input type="hidden" id="shedule" name="shedule" value='00000000-0000-0000-0000-000000000000'>
+        <input type="hidden" id="position" name="position" value='00000000-0000-0000-0000-000000000000'>
+        <input type="hidden" id="cowork_state" name="cowork_state" value=0>
+    </form>
+
+
+    {% block morejs %}
+
+        <script>
+
+            function sel_onchange() {
+                guid_f = $('#busy_key_new').find(":selected").val();
+                if (guid_f == '738B3875-17E4-11E9-80D0-E41F13C123D6') { {#РВ#}
+                    var _url = '/{{time_sheet_fact.p_uid.enterprise_guid.guid}}/{{ time_sheet_fact.p_uid.position_guid.guid }}/{{time_sheet_fact.p_uid.dts.year}}/{{time_sheet_fact.p_uid.dts.month}}/{{time_sheet_fact.p_uid.dts.day}}/select_cowork/1/{{ time_sheet_fact.p_uid.p_uid }}';
+                    $("#ModalWindow").modal("show");
+                    $.ajax({
+                        url: _url,
+                        type: 'get',
+                        success: function (data) {
+                            $("#ModalWindow .modal-content").html(data);
+                        }
+                    })
+                }
+            }
+
+            function myWindow() {
+
+                en_se = '{{ time_sheet_fact.enterprise_guid.guid }}';
+                position = '{{ time_sheet_fact.position_guid.guid }}';
+                console.log(en_se, position)
+
+                var _url = '/' + en_se + '/' + position + '/' + '{{time_sheet_fact.dts.year}}' + '/' + '{{time_sheet_fact.dts.month}}' + '/' + '{{time_sheet_fact.dts.day}}/select_cowork/1/{{time_sheet_fact.cowork_state}}';
+                $("#ModalWindow").modal("show");
+                $.ajax({
+                    url: _url,
+                    type: 'get',
+                    success: function (data) {
+                        $("#ModalWindow .modal-content").html(data);
+                    }
+                })
+            };
+
+            function set_pes(pers_guid, shedule_guid, position_guid, pers_first_guid, p_uid, person_ob)  {
+
+                $("#foworker").val(pers_guid);
+                $("#shedule").val(shedule_guid);
+                $("#position").val(position_guid);
+                $("#ModalWindow").modal("hide");
+            }
+
+
+            $(document).ready(function () {
+                $('form').submit(function () {
+                    $(this).find('input[type=submit], button[type=submit]').prop('disabled', true);
+                });
+            });
+        </script>
+
+    {% endblock morejs %}
+
+{% endblock %}

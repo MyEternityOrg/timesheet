@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% load filtertags %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <form action="" method="post">
+        <ol class="breadcrumb float-sm-right">
+            <li>
+                <a class="btn btn-success" href="{% url 'create_trained_staff' %}" role="button">Добавить</a>
+            </li>
+        </ol>
+        {% csrf_token %}
+        <div id="layoutSidenav_content">
+            <div class="tab-content table-responsive" id="myTabContent">
+                <div class="tab-pane floatThead-container fade show active overflow-auto" id="home"
+                     role="tabpanel" aria-labelledby="home-tab">
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="fixed-table-toolbar card-body">
+                                <table class="table table-bordered table-hover" id="dataTable" cellspacing="0">
+                                    <thead>
+                                    <tr>
+                                        <th>Сорудник</th>
+                                        <th>Обучен на должность</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for t_s in trained_staff %}
+                                        <tr>
+{#                                            data-href="{% url 'edit_trained_staff' t_s.guid %}">#}
+                                            <td>{{ t_s.person_guid }}</td>
+                                            <td>{{ t_s.position_guid }}</td>
+                                            <td><a href="{% url 'deleted_trained_staff' t_s.guid %}">Удалить</a></td>
+{#                                            <td><button type="button" class="btn btn-outline-info" onclick="myWindow('{{ t_s.guid  }}')">Удалить</button></td>#}
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!--MODAL-->
+        <div class="modal bd-example-modal-lg" id="ModalWindow" tabindex="-1" role="dialog" aria-labelledby="ModalWindowLg"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    Идет загрузка данных...
+                </div>
+                <a href="#close-modal" rel="modal:close" class="close-modal ">Close</a>
+            </div>
+        </div>
+    </form>
+    {% block morejs %}
+    <script>
+     function myWindow(guid) {
+            var _url = '/deleted_trained_staff/'+ guid;
+            $("#ModalWindow").modal("show");
+            $.ajax({
+                url: _url,
+                type: 'POST',
+                success: function callback(data) {
+                    $("#ModalWindow .modal-content").html(data);
+                }
+            })
+        };
+     $('#dataTable').DataTable({
+                responsive: true
+            });
+    </script>
+        {% endblock %}
+{% endblock %}

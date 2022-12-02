@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load l10n %}
+
+
+{% block title %}
+    {% localize on %}
+        Мотивация сотрудников
+    {% endlocalize %}
+{% endblock %}
+
+{% block content %}
+
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="mb-2">
+            <label for="dts_month">Месяц: </label> <select id="dts_month" name="dts_month">
+            {% for k,v in dict_month.items %}
+                <option value="{{ k }}" {% if k == month %} selected {% endif %}>{{ v }}</option>
+            {% endfor %}
+        </select>
+            <label for="dts_year"> Год: </label><select id="dts_year" name="dts_year">
+            {% for y in list_year %}
+                <option value="{{ y }}" {% if y == year %} selected {% endif %}>{{ y }}</option>
+            {% endfor %}
+        </select>
+            <button type="button" class="btn btn-success" name="close_table" onclick="reload_data()">Сформировать
+            </button>
+        </div>
+
+        <div id="layoutSidenav_content">
+            <div>
+                <div class="container-fluid">
+                    {% if user.profileuser.entreprise is None %}
+                        <div class="row mb-3">
+                            <div class="col col-sm-auto mb-auto">
+                                <div class="input-group mb-1">
+                                    <input type="text" class="form-control" required="" id="enterprise_guid_to_label"
+                                           placeholder="--Выберите подразделение--"
+                                           aria-label="--Выберите подразделение--" size="50" disabled>
+                                    <button class="btn btn-outline-secondary btn-sm" type="button"
+                                            onclick="myWindowEnter()">...
+                                    </button>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="clear_ent()">X
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col col-sm-auto mb-auto">
+                                <div class="input-group mb-1">
+                                    <input type="text" class="form-control" required="" id="personal"
+                                           placeholder="--Выберите сотрудника--"
+                                           aria-label="--Выберите сотрудника--" size="50" disabled>
+                                    <button class="btn btn-outline-secondary btn-sm" type="button"
+                                            onclick="mypersonal()">
+                                        ...
+                                    </button>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="clear_pes()">X
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col col-sm-auto mb-auto">
+                                <div class="input-group mb-1">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="flexCheck"
+                                               style="transform:scale(1.6);">
+                                        <label class="form-check-label" for="flexCheck">
+                                            Только мотивация
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <a id="exp" type="button" class="btn btn-outline-primary">Сохранить в Excel</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+
+        <table border="1" id="datatable_mtv" class="table table-bordered table-sm table-hover table-striped">
+            <thead class="thead-light">
+            <tr>
+                <th>Сотрудник</th>
+                <th>Подразделение</th>
+                <th>Должность</th>
+                <th>Количество чеков</th>
+                <th>Скорость</th>
+                <th>Кол-во дней</th>
+                {% if  user.profileuser.otiz %}
+                    <th>Сумма с НДФЛ</th>
+                {% else %}
+                    <th>Сумма без НДФЛ</th>
+                {% endif %}
+            </tr>
+            </thead>
+          {% for row in init %}
+                <tr {% if user.profileuser.otiz and row.person_guid in resigned_list %} class="text-danger fw-bold"
+                                                                                        style="color:#FF0000" {% endif %}>
+                    <td {% if row.mc > 14 and row.prize > 0 %} bgcolor="#98fb98" class="table-success" {% elif row.mc == 14 and row.prize > 0 %}
+                                             bgcolor="#fafad2"
+                                             class="table-warning"{% endif %}>{{ row.person_guid }}</td>
+                    <td {% if row.mc > 14 and row.prize > 0%} bgcolor="#98fb98" class="table-success" {% elif row.mc == 14 and row.prize > 0%}
+                                             bgcolor="#fafad2"
+                                             class="table-warning"{% endif %}>{{ row.enterprise_guid }}</td>
+                    <td {% if row.mc > 14 and row.prize > 0%} bgcolor="#98fb98" class="table-success" {% elif row.mc == 14 and row.prize > 0%}
+                                             bgcolor="#fafad2"
+                                             class="table-warning"{% endif %}>{{ row.position_guid }}</td>
+                    <td {% if row.mc >= 4 %} bgcolor="#98fb98"
+                                             class="table-success"{% endif %}>{{ row.checks_count }}</td>
+                    <td {% if row.mc in l_yel %} bgcolor="#fafad2"
+                                              class="table-warning" {% elif row.mc in l_grn %}
+                                              bgcolor="#98fb98"
+                                              class="table-success" {% endif %}>{{ row.speed_avg }}</td>
+                    <td {% if row.mc > 14 and row.prize > 0%} bgcolor="#98fb98" class="table-success" {% elif row.mc == 14 and row.prize > 0%}
+                                             bgcolor="#fafad2" class="table-warning"{% endif %}>{{ row.f_amt }}</td>
+                    {% if  user.profileuser.otiz %}
+                        <td {% if row.mc > 14 and row.prize > 0%} bgcolor="#98fb98" class="table-success" {% elif row.mc == 14 and row.prize > 0%}
+                                                 bgcolor="#fafad2"
+                                                 class="table-warning"{% endif %}>{{ row.prize|floatformat:2 }}</td>
+                    {% else %}
+                        <td {% if row.mc > 14 and row.prize > 0%} bgcolor="#98fb98" class="table-success" {% elif row.mc == 14 and row.prize > 0%}
+                                                 bgcolor="#fafad2"
+                                                 class="table-warning"{% endif %}>{{ row.prize_view|floatformat:2 }}</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            {% for row in init_header %}
+                <tr {% if user.profileuser.otiz and row.person_guid in resigned_list %} class="text-danger fw-bold"
+                                                                                        style="color:#FF0000" {% endif %}>
+                    <td {% if row.mc == 3 %} bgcolor="#98fb98"
+                                             class="table-success" {% endif %}>{{ row.person_guid }}</td>
+                    <td {% if row.mc == 3 %} bgcolor="#98fb98"
+                                             class="table-success" {% endif %}>{{ row.enterprise_guid }}</td>
+                    <td {% if row.mc == 3 %} bgcolor="#98fb98"
+                                             class="table-success" {% endif %}>{{ row.position_guid }}</td>
+                    <td {% if row.mc == 3 %} bgcolor="#98fb98" class="table-success" {% endif %}></td>
+                    <td {% if row.mc == 2 %} bgcolor="#fafad2"
+                                             class="table-warning" {% elif row.mc == 3  %}
+                                             bgcolor="#98fb98"
+                                             class="table-success" {% endif %}>{{ row.speed_avg }}</td>
+                    <td {% if row.mc == 3 %} bgcolor="#98fb98" class="table-success" {% endif %}>{{ row.f_amt }}</td>
+                    {% if  user.profileuser.otiz %}
+                        <td {% if row.mc == 3 %} bgcolor="#98fb98"
+                                                 class="table-success" {% endif %}>{{ row.prize|floatformat:2 }}</td>
+                    {% else %}
+                        <td {% if row.mc == 3 %} bgcolor="#98fb98"
+                                                 class="table-success" {% endif %}>{{ row.prize_view|floatformat:2 }}</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="text-center">
+            <div class="spinner-border" id='spinner' style="width: 3rem; height: 3rem;" role="status" hidden>
+                <span class="visually-hidden"></span>
+            </div>
+        </div>
+
+        <input type="hidden" name="enterprise_guid" id="enterprise_guid" value={{ enterprise_guid }}>
+        <input type="hidden" name="personal_guid" id="personal_guid" value={{ personal_guid }}>
+
+
+        <!--MODAL-->
+        <div class="modal bd-example-modal-lg" id="ModalWindow" tabindex="-1" role="dialog"
+             aria-labelledby="ModalWindowLg"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                {% include 'TimeSheet/part_form/spinner_small.html' %}
+                <div class="modal-content">
+                </div>
+                <a href="#close-modal" rel="modal:close" class="close-modal ">Close</a>
+            </div>
+        </div>
+    </form>
+    <div class="d-inline p-2 table-success">Мотивация</div>
+    <div class="d-inline p-2 table-warning">Не хватает скорости или количество чеков до мотивации</div>
+
+    {% block morejs %}
+
+        <script>
+
+            $(document).ready(function () {
+                preview_excel('exp', 'datatable_mtv', 'mtv');
+            });
+
+            function myWindowEnter() {
+                document.getElementById('spinner_small').hidden = false;
+                $("#ModalWindow .modal-content").html('Загрузка.....');
+                var _url = '/select_enterprise/';
+                $("#ModalWindow").modal("show");
+                $.ajax({
+                    url: _url,
+                    type: 'get',
+                    success: function (data) {
+                        $("#ModalWindow .modal-content").html(data);
+                        document.getElementById('spinner_small').hidden = true;
+                    }
+                })
+            };
+
+
+            function set_ent(val) {
+                $("#enterprise_guid_to_label").val(val.substr(37));
+                $("#enterprise_guid").val(val.substr(0, 36));
+                $("#ModalWindow").modal("hide");
+            }
+
+            function myWindow() {
+                location.reload()
+            };
+
+
+            function mypersonal() {
+                document.getElementById('spinner_small').hidden = false;
+                $("#ModalWindow .modal-content").html('Загрузка.....');
+                var _url = '/select_all_staff/';
+                $("#ModalWindow").modal("show");
+                $.ajax({
+                    url: _url,
+                    type: 'get',
+                    success: function (data) {
+                        $("#ModalWindow .modal-content").html(data);
+                        document.getElementById('spinner_small').hidden = true;
+                    }
+                })
+            };
+
+
+            function set_pes(guid, name) {
+                $('#personal').val(name);
+                $('#personal_guid').val(guid);
+                $("#ModalWindow").modal("hide");
+            };
+
+
+            function clear_ent() {
+                $("#enterprise_guid_to_label").val('');
+                $("#enterprise_guid").val('');
+            };
+
+            function clear_pes() {
+                $('#personal').val('');
+                $('#personal_guid').val('');
+            };
+
+            function reload_data() {
+                $("#datatable_mtv").html('');
+                let load_spinner = document.getElementById('spinner');
+                load_spinner.hidden = false;
+
+                let check_fl = false;
+                let el_check = document.getElementById('flexCheck');
+                if (el_check != null) {
+                    if (el_check.checked) {
+                        check_fl = true;
+                    }
+                }
+                ;
+
+                $.ajax({
+                    type: "GET",
+                    url: '{{ '/mtv/' }}',
+                    data: {
+                        enterprise_guid: $('#enterprise_guid').val(),
+                        dts_month: $('#dts_month').val(),
+                        dts_year: $('#dts_year').val(),
+                        pers_guid: $('#personal_guid').val(),
+                        check_mtv: check_fl,
+                    },
+                    success: function callback(data) {
+                        $("#datatable_mtv").html(data);
+                        load_spinner.hidden = true;
+                        preview_excel('exp', 'datatable_mtv', 'mtv');
+                    }
+                });
+            };
+
+            $('#datatable').DataTable({
+                responsive: true
+            });
+        </script>
+    {% endblock morejs %}
+{% endblock %}
+

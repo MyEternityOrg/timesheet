@@ -1,0 +1,113 @@
+
+{% load static %}
+{% load l10n %}
+
+<table border="1" id="datatablePers" class="table ">
+    <thead class="thead-light">
+    <tr>
+        <th>Сотрудник</th>
+        <th>Подразделение</th>
+        <th>Должность</th>
+        <th>Кол-во дней</th>
+        <th>Даты месяца выхода в РВ</th>
+    </tr>
+    </thead>
+    <tbody>
+    <div class="accordion" id="accordionExample">
+        {% for rowdata in init %}
+            <div class="accordion-item">
+            <div class="accordion-header" id="heading{{ forloop.counter0 }}">
+                <tr>
+                    <td>
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapse{{ forloop.counter0 }}" aria-expanded="true"
+                                aria-controls="collapse{{ forloop.counter0 }}"
+                                onclick="tr_hidden('tr_hidden{{ forloop.counter0 }}')">
+                            +
+                        </button>
+                        <strong>{{ rowdata.person_guid }}</strong>
+                    </td>
+                    <td><strong>{{ rowdata.enterprise }}</strong></td>
+                    <td><strong>{{ rowdata.position }}</strong></td>
+                    <td><strong>{{ rowdata.days_cnt }}</strong></td>
+                    <td></td>
+                </tr>
+            </div>
+            {% for detail_row in rowdata.detail %}
+                <tr class="tr_hidden{{ forloop.parentloop.counter0 }}" hidden>
+                    <td>
+                        <div id="collapse{{ forloop.parentloop.counter0 }}"
+                             class="accordion-collapse collapse"
+                             aria-labelledby="heading{{ forloop.parentloop.counter0 }}"
+                             data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <i>{{ detail_row.person_guid }}</i>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div id="collapse{{ forloop.parentloop.counter0 }}"
+                             class="accordion-collapse collapse"
+                             aria-labelledby="heading{{ forloop.parentloop.counter0 }}"
+                             data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <i>{{ detail_row.enterprise }}</i>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div id="collapse{{ forloop.parentloop.counter0 }}"
+                             class="accordion-collapse collapse"
+                             aria-labelledby="heading{{ forloop.parentloop.counter0 }}"
+                             data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <i>{{ detail_row.position }}</i>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div id="collapse{{ forloop.parentloop.counter0 }}"
+                             class="accordion-collapse collapse"
+                             aria-labelledby="heading{{ forloop.parentloop.counter0 }}"
+                             data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <i>{{ detail_row.days_cnt }}</i>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div id="collapse{{ forloop.parentloop.counter0 }}"
+                             class="accordion-collapse collapse"
+                             aria-labelledby="heading{{ forloop.parentloop.counter0 }}"
+                             data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <i>{{ detail_row.cw_data }}</i>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+        </div>
+    </tbody>
+</table>
+
+<!-- REQUIRED SCRIPTS -->
+<!-- jQuery -->
+<script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'dist/js/jquery.formset.js' %}"></script>
+<!-- Bootstrap -->
+<script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'plugins/toastr/toastr.min.js' %}"></script>
+<!-- overlayScrollbars -->
+<script
+        src="{% static 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
+
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.js' %}"></script>
+
+<!-- OPTIONAL SCRIPTS -->
+<script src="{% static 'dist/js/demo.js' %}"></script>
+
+<script src="{% static 'plugins/jquery/jquery.floatThead.js' %}"></script>
+<script src="{% static 'plugins/jquery/jquery.floatThead.min.js' %}"></script>

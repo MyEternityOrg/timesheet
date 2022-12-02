@@ -1,0 +1,54 @@
+
+{% load static %}
+{% load l10n %}
+
+<table border="1" id="datatablePers" class="table table-bordered table-hover">
+      <thead class="thead-light">
+        <tr>
+          <th>Сотрудник</th>
+          <th>Дни план</th>
+          <th>Часы план</th>
+          <th>дни по факту("Я")</th>
+          <th>часы по факту("Я")</th>
+          <th>дни по факту("РВ")</th>
+          <th>часы по факту("РВ")</th>
+          <th>Факт часы</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {% for rowdata in init %}
+          <tr>
+            <td>{{ rowdata.person_guid }}</td>
+            <td>{{ rowdata.plan_amt_count }}</td>
+            <td>{{ rowdata.plan_amt_hours|floatformat:1 }}</td>
+            <td>{{ rowdata.fact_amt_count }}</td>
+            <td>{{ rowdata.fact_amt_hours|floatformat:1 }}</td>
+            <td>{{ rowdata.cowr_amt_count }}</td>
+            <td>{{ rowdata.cowr_amt_hours|floatformat:1 }}</td>
+            <td>{{ rowdata.total_hours|floatformat:1 }}</td>
+          </tr>
+        {% endfor %}
+
+      </tbody>
+    </table>
+
+<!-- REQUIRED SCRIPTS -->
+<!-- jQuery -->
+<script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'dist/js/jquery.formset.js' %}"></script>
+<!-- Bootstrap -->
+<script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'plugins/toastr/toastr.min.js' %}"></script>
+<!-- overlayScrollbars -->
+<script
+        src="{% static 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
+
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.js' %}"></script>
+
+<!-- OPTIONAL SCRIPTS -->
+<script src="{% static 'dist/js/demo.js' %}"></script>
+
+<script src="{% static 'plugins/jquery/jquery.floatThead.js' %}"></script>
+<script src="{% static 'plugins/jquery/jquery.floatThead.min.js' %}"></script>

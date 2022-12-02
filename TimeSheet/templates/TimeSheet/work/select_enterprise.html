@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% load filtertags %}
+
+{% block title %}
+Подразделения {{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+<form action="" method="post">
+      {% csrf_token %}
+
+      <div class="fixed-table-toolbar">
+            <div class="float-right search btn-group">
+                  <input class="form-control search-input" id="mySearch" type="search" placeholder="Search" autocomplete="off">
+            </div>
+
+
+            <table id="datatable" class="table table-bordered table-hover" data-page-length='100'>
+                  <thead class="thead-light">
+                  <tr>
+                        <th>S/N</th>
+                        <th>Подразделение</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+
+                  {% for rowdata in init %}
+                  <tr class='clickable-row_val' data-href="{{ rowdata.guid }}|{{ rowdata }}" data-bs-dismiss="modal">
+                        <td>{{ forloop.counter}}</td>
+                        <td>{{ rowdata}}</td>
+                  </tr>
+                  {% endfor %}
+
+                  </tbody>
+            </table>
+
+      </div>
+</form>
+
+{% block morejs %}
+
+<script>
+
+$(document).ready(function(){
+  $("#mySearch").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#datatable tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+
+(function ($) {
+    $('.clickable-row_val').css('cursor', 'pointer');
+    $(".clickable-row_val").click(function () {
+            try {
+                window.opener.set_ent($(this).data("href"));
+                window.close();
+            } catch (e) {
+                set_ent($(this).data("href"));
+            }
+        }
+    );
+})(jQuery)
+
+</script>
+
+{% endblock morejs %}
+
+{% endblock %}

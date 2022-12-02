@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load l10n %}
+
+{% block title %}
+{% localize on %}
+Даты ревизий {{ block.super }}
+{% endlocalize %}
+{% endblock %}
+
+{% block breadcrumb %}
+<a class="btn btn-primary" href="{% url 'revision-create' %}"><i class="fas fa-plus"></i>Новая запись</a>
+{% endblock breadcrumb %}
+
+{% block content %}
+
+<form action="" method="post">
+    {% csrf_token %}
+    <table id="table" class="table table-bordered table-hover" data-page-length='100'>
+        <thead class="thead-light">
+        <tr>
+            <th>Дата</th>
+            <th>Магазин</th>
+            <th>Дата создания</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for row_data in data %}
+        <tr class='clickable-row' data-href="{% url 'revision-edit' row_data.enterprise_uid.guid row_data.revision_date %}">
+            <td>{{ row_data.revision_date|date:"Y-m-d" }}</td>
+            <td>{{ row_data.enterprise_uid }}</td>
+            <td>{{ row_data.uid|get_create_date_revision }}</td>
+            <td><a href="{% url 'revision-deleted' row_data.enterprise_uid.guid row_data.revision_date %}">Удалить</a></td>
+        </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+
+</form>
+
+{% block morejs %}
+<script>
+  $('#table').DataTable({
+  responsive: true
+  });
+</script>
+
+{% endblock morejs %}
+
+{% endblock %}

@@ -1,0 +1,59 @@
+
+{% load widget_tweaks %}
+{% load static %}
+
+<table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+    <thead>
+    <tr>
+        <th>Документ</th>
+        <th>Номер</th>
+        <th>Подразделение</th>
+        <th>Статус</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for sh_ch in shift_checks %}
+        {% if user.profileuser.sb and sh_ch.flag_sb.id == 0 %}
+            <tr class='clickable-row font-weight-bold' data-href="{% url 'shift_data_f_checks_update' sh_ch.uid %}">
+                {% else %}
+            <tr class='clickable-row ' data-href="{% url 'shift_data_f_checks_update' sh_ch.uid %}">
+        {% endif %}
+    <td>{{ sh_ch }}</td>
+    <td>{{ sh_ch.number_doc }}</td>
+    <td>{{ sh_ch.enterprise }}</td>
+    <td>{{ sh_ch|get_sts_ShCh }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<!-- REQUIRED SCRIPTS -->
+<!-- jQuery -->
+<script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'dist/js/jquery.formset.js' %}"></script>
+<!-- Bootstrap -->
+<script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'plugins/toastr/toastr.min.js' %}"></script>
+<!-- overlayScrollbars -->
+<script
+        src="{% static 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
+
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.js' %}"></script>
+
+<!-- OPTIONAL SCRIPTS -->
+<script src="{% static 'dist/js/demo.js' %}"></script>
+
+<script src="{% static 'plugins/jquery/jquery.floatThead.js' %}"></script>
+<script src="{% static 'plugins/jquery/jquery.floatThead.min.js' %}"></script>
+
+<script>
+
+     (function ($) {
+        $('.clickable-row').css('cursor', 'pointer');
+        $(".clickable-row").click(function () {
+            window.location = $(this).data("href");
+        });
+    })(jQuery);
+
+</script>

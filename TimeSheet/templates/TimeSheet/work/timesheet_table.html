@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load l10n %}
+
+
+{% block title %}
+    {% localize on %}
+        Табель "{{ sheet_shop }}" за "{{ date_sheet }}" {{ block.super }}
+    {% endlocalize %}
+{% endblock %}
+
+{% block content %}
+
+    <form action="" method="post">
+        {% csrf_token %}
+
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                   aria-selected="true">Основное</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab"
+                   aria-controls="profile" aria-selected="false">Подработки/Совмещения</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab"
+                   aria-controls="contact"
+                   aria-selected="false">Ревизия</a>
+            </li>
+            <li class="nav-item">
+                <a class="btn btn-success" id="print_tab"
+                   href="{% url 'table-print' enterprise year month %}">Печать</a>
+                <!--      <a class="btn" type="button" onclick="myWindow()" id="print_tab">Печать</a>-->
+            </li>
+        </ul>
+
+        <style>
+            .descr {
+                font-family: 'Times New Roman', Times, serif;
+                font-size: 8.5pt;
+            }
+
+            p {
+                font-family: 'Times New Roman', Times, serif;
+                font-size: 12pt;
+            }
+
+            * {
+                padding: 0;
+                margin: 0;
+                box-sizing: border-box;
+            }
+
+            {#table.floated#} {# зеленый цвет при прокрутки вниз таблицы#}
+            {#    {#}
+            {#        background-color: #d5ffd5;#}
+            {#    }#}
+        </style>
+        <div class="tab-content table-responsive" id="myTabContent">
+            <div class="tab-pane floatThead-container fade show active overflow-auto" data-cls="datatable" id="home" role="tabpanel" aria-labelledby="home-tab">
+                <table id="datatable"
+                       class="table table-bordered table-sm table-hover table-striped">
+
+
+                    <thead class="thead-light">
+                    <tr>
+                        <th align="center" valign="middle"><p>Сотрудник</p></th>
+                        <th align="center" valign="middle">Должность <br> График</th>
+                        <th align="center" valign="middle"></th>
+                        {% for date in list_date %}
+                            <!--<th><a name=date>{{ date.day }}</a></th>-->
+                            {% if day_open == 999 or day_open <= date.date.day and today >= date.date.day %}
+                                {% if date.day_week == 6 %}
+                                    <th bgcolor="red" align="center" valign="middle"><a
+                                            href="{% url 'edit-table' enterprise date.date %}">{{ date.date.day }}</a>
+                                    </th>
+                                {% else %}
+                                    <th align="center" valign="middle"><a
+                                            href="{% url 'edit-table' enterprise date.date %}">{{ date.date.day }} <br>{{ date.day_week }}</a>
+                                    </th>
+                                {% endif %}
+                            {% else %}
+                                {% if date.day_week == 6 %}
+                                    <th bgcolor="red" align="center" valign="middle"><a>{{ date.date.day }}</a></th>
+                                {% else %}
+                                    <th align="center" valign="middle"><a>{{ date.date.day }}</a></th>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        {% for detail in data %}
+                            <tr>
+                                {% if detail.person|person_table_key:dict_rem_pers %}
+                                    <td rowspan="2" align="center" valign="middle" ><a
+                                            href="{% url 'edit-remove-person' detail.person.guid enterprise %}"><u><p>
+                                        <font color={{ detail.b_color }}>{{ detail.person }}
+                                            {% if hidden_h %}
+                                                <i class="fa"><input type="button" value="i" onclick="click_info('{{enterprise}}', '{{ year }}', '{{ month }}', '{{ detail.person.guid }}')"></i>
+                                            {% endif %}
+                                                </font></p></u></a></td>
+                                {% else %}
+                                    <td rowspan="2" align="center" valign="middle"><p><font
+                                            color={{ detail.b_color }}>{{ detail.person }}
+                                         {% if hidden_h %}
+                                                <i class="fa"><input type="button" value="i" onclick="click_info('{{enterprise}}', '{{ year }}', '{{ month }}', '{{ detail.person.guid }}')"></i>
+                                         {% endif %}
+                                    </font></p>
+                                        <p><a href="{% url 'edit_time_sheet_personal_List' detail.person.guid enterprise year month%}">заявка на корр.</a></p></td>
+                                {% endif %}
+                                <td align="center" valign="middle"><p><font
+                                        color={{ detail.b_color }}>{{ detail.position }}</font></p></td>
+                                <td align="center" valign="middle"><p><font size=2
+                                                                            color={{ detail.b_color }}>{{ detail.Outcome }}</font>
+                                </p></td>
+                                {% for date in detail.date %}
+                                    {% if date.day_week == 6 or date.day_week == 5 %}
+                                        <td bgcolor="#FFC9C9" align="center" valign="middle">
+                                            {% if  not hidden_h and detail.shedule.guid|this_around_the_clock:date.day and date.busy_key.guid == '5A688F01-74A8-11E8-80F9-3640B58B95BD' %}
+                                                Я/Н
+                                            {% else %}
+                                                {{ date.busy_key }}
+                                            {% endif %}
+                                            {% if hidden_h %}
+                                                {% if date.hours > 0 %}
+                                                    <br>
+                                                        {{ date.hours }}
+                                                {% endif %}
+                                            {% endif %}
+                                        </td>
+                                    {% else %}
+                                        <td align="center" valign="middle">
+                                            <font color={{ detail.b_color }}>
+                                                {% if not hidden_h and detail.shedule.guid|this_around_the_clock:date.day and date.busy_key.guid == '5A688F01-74A8-11E8-80F9-3640B58B95BD' %}
+                                                    Я/Н
+                                                {% else %}
+                                                    {{ date.busy_key }}
+                                                {% endif %}
+                                                {% if hidden_h %}
+                                                    {% if date.hours > 0 %}
+                                                        <br>
+                                                        {{ date.hours }}
+                                                    {% endif %}
+                                                {% endif %} </font>
+                                            </font>
+                                        </td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <td align="center" valign="middle"><p>{{ detail.shedule }}</p></td>
+                                <td align="center" valign="middle"><p><font size=2>{{ detail.Outcome_f }}</font></p>
+                                </td>
+                                {% for date in detail.date %}
+                                    {% if date.day_week == 6 or date.day_week == 5 %}
+                                        <td bgcolor="#FFC9C9" align="center" valign="middle">
+                                            {% if not hidden_h and detail.shedule.guid|this_around_the_clock:date.day and date.busy_key_fact.guid == '5A688F01-74A8-11E8-80F9-3640B58B95BD' %}
+                                                Я/Н
+                                            {% else %}
+                                                {{ date.busy_key_fact }}
+                                            {% endif %}
+
+                                            {% if hidden_h %}
+                                                {% if date.hours_fact > 0 %}
+                                                    <br>
+                                                        {{ date.hours_fact }}
+                                                {% endif %}
+                                            {% endif %}
+                                        </td>
+                                    {% else %}
+                                        <td bgcolor="#E1E1E1" align="center" valign="middle">
+                                             {% if not hidden_h and detail.shedule.guid|this_around_the_clock:date.day and date.busy_key_fact.guid == '5A688F01-74A8-11E8-80F9-3640B58B95BD' %}
+                                                Я/Н
+                                            {% else %}
+                                                {{ date.busy_key_fact }}
+                                            {% endif %}
+                                            {% if hidden_h %}
+                                                {% if date.hours_fact > 0 %}
+                                                    <br>
+                                                        {{ date.hours_fact }}
+                                                {% endif %}
+                                            {% endif %}
+                                        </td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="contact-tab">
+                <table id="datatable_cowork" class="table table-bordered table-sm">
+                    <thead class="thead-light">
+                    <tr>
+                        <th rowspan="2" align="center" valign="middle">Дата</th>
+                        <th align="center" valign="middle">Сотрудник</th>
+                        <th align="center" valign="middle">Структурная Единица</th>
+                        <th rowspan="2" align="center" valign="middle">Заменяемый</th>
+                        <th align="center" valign="middle">Должность</th>
+                        <th align="center" valign="middle">График</th>
+                        <th align="center" valign="middle">Совмещение</th>
+                        {% if hidden_h %}
+                            <th align="center" valign="middle">Часы</th>
+                        {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for data in data_coworks %}
+                        <tr>
+                            <td>{{ data.dts }}</td>
+                            <td>{{ data.coworker_guid }}</td>
+                            <td>{{ data.coworker_enterprise_guid }}</td>
+                            <td>{{ data.foworker_guid }}</td>
+                            <td>{{ data.position_guid }}</td>
+                            <td>{{ data.shedule_guid }}</td>
+                            <td>{{ data.cowork_state }}</td>
+                            {% if hidden_h %}
+                                <td>{{ data.count_hours }}</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+
+                <table id="datatable_rework" class="table table-bordered table-sm">
+                    <thead class="thead-light">
+                    <tr>
+                        <th align="center" valign="middle">Дата</th>
+                        <th align="center" valign="middle">Сотрдуник</th>
+                        <th align="center" valign="middle">Структурная Единица</th>
+                        <th align="center" valign="middle">Должность</th>
+                        {% if hidden_h %}
+                            <th align="center" valign="middle">Часы</th>
+                            <th align="center" valign="middle">Дата учета РВ</th>
+                        {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for data in data_reworks %}
+                        <tr>
+                            <td>{{ data.dts_audit }}</td>
+                            <td>{{ data.coworker_guid }}</td>
+                            <td>{{ data.enterprise_guid }}</td>
+                            <td>{{ data.position_guid }}</td>
+                            {% if hidden_h %}
+                                <td>{{ data.count_hours }}</td>
+                                <td>{{ data.dts }}</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+        </div>
+        <input type="hidden" name="enterprise_guid" value={{ enterprise }}>
+
+    </form>
+
+    {% block morejs %}
+        <script>
+            {#$('#datatable').DataTable();#}
+
+            function myWindow() {
+
+                en_se = enterprise;
+
+                var _url = '/' + en_se + '/' + '{{dts.year}}' + '/' + '{{dts.month}}' + '/print_table/'
+                window.open(_url, "", "width=600,height=600, status=yes, toolbar=no, menubar=no, location=no,addressbar=no")
+
+            }
+
+            function click_info(enterprise, year, month, person) {
+                var _url = '/'+ enterprise + '/' + year + '/' + month + '/' + person + '/info_history_table/'
+                window.open(_url, "", "width=600,height=600, status=yes, toolbar=no, menubar=no, location=no,addressbar=no")
+
+            }
+
+            $(document).ready(function () {
+                $('#datatable').floatThead({
+                    top: 50,
+                    position: 'fixed'
+                });
+
+
+                $('#datatable').on("floatThead", function (e, isFloated, $floatContainer) {
+
+                    if (isFloated) {
+                        $floatContainer.addClass("floated"); // the div containing the table containing the thead
+                        $(this).addClass("floated"); // $table
+                    } else {
+                        $floatContainer.removeClass("floated");
+                        $(this).removeClass("floated");
+                    }
+                })
+
+            });
+        </script>
+
+    {% endblock morejs %}
+
+{% endblock %}

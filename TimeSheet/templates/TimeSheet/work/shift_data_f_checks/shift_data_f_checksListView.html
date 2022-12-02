@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% load filtertags %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+
+    <form action="" method="post">
+
+        {% csrf_token %}
+
+            <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid">
+{#                <h1 class="mt-4">Категории</h1>#}
+                <div class="card mb-4">
+{#                    <div class="card-header">#}
+{#                        <i class="fas fa-table mr-1"></i>#}
+{#                        Категории#}
+{#                    </div>#}
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <select class="form-select form-select-sm mb-3" aria-label=".form-select-sm" id="id_status" onchange="status_change()">
+                                <option selected disabled>Отбор по статусу</option>
+                                {% for cn in list_status %}
+                                    <option value="{{ cn.id }}">{{ cn }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="button" class="btn"><i class="fa fa-window-close" onclick="location.reload();"></i></button>
+                            <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                                <thead>
+                                <tr>
+                                    <th>Документ</th>
+                                    <th>Номер</th>
+                                    <th>Подразделение</th>
+                                    <th>Статус</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for sh_ch in shift_checks %}
+                                    {% if user.profileuser.sb and sh_ch.flag_sb.id == 0 %}
+                                        <tr class='clickable-row font-weight-bold' data-href="{% url 'shift_data_f_checks_update' sh_ch.uid %}">
+                                    {% else %}
+                                        <tr class='clickable-row ' data-href="{% url 'shift_data_f_checks_update' sh_ch.uid %}">
+                                    {% endif %}
+                                        <td>{{ sh_ch }}</td>
+                                        <td>{{ sh_ch.number_doc }}</td>
+                                        <td>{{ sh_ch.enterprise }}</td>
+                                        <td>{{ sh_ch|get_sts_ShCh }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+    </form>
+
+
+    {% block morejs %}
+
+        <script>
+          $('#dataTable').DataTable({
+                responsive: true
+            });
+
+          function status_change(){
+              var _url = location.href + '?status_id=' + $('#id_status').val()
+              $.ajax({
+                    url: _url,
+                    type: 'get',
+                    success: function (data) {
+                        $("#dataTable").html(data);
+                    }
+                })
+
+          };
+        </script>
+
+    {% endblock morejs %}
+
+{% endblock %}

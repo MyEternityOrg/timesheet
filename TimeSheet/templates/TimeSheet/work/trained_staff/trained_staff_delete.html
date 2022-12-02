@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% load filtertags %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <title>
+        Подбор сотрудников {{ block.super }}
+    </title>
+</head>
+<body>
+<!-- Main Sidebar Container -->
+<div class="content-wrapper">
+    <form method="post">{% csrf_token %}
+        <p>Вы уверены, что хотите удалить "{{ object }}"?</p>
+        <input type="submit" value="Удалить">
+    </form>
+</div>
+</body>
+</html>

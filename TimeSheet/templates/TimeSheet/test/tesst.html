@@ -1,0 +1,54 @@
+{% extends 'base_copy.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% load filtertags %}
+
+{% block title %}
+Подбор сотрудников "{{ sheet_shop }}" за "{{ dts }}" {{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+<form action="" method="post">
+      {% csrf_token %}
+
+
+      <table id="datatable" class="table table-bordered table-hover" data-page-length='100'>
+            <thead class="thead-light">
+            <tr>
+                  <th>S/N</th>
+                  <th>Сотрудник</th>
+                  <th>Должность</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for rowdata in init %}
+            <tr class='clickable-row_val'  data-href="{{rowdata.p_uid.person_guid.guid}}|{{ rowdata.p_uid.person_guid}}">
+                  <td>{{ forloop.counter}}</td>
+                  <td>{{ rowdata.p_uid.person_guid}}</td>
+                  <td>{{ rowdata.p_uid.position_guid}}</td>
+            </tr>
+            {% endfor %}
+
+            </tbody>
+      </table>
+</form>
+
+{% block morejs %}
+
+<script>
+
+      (function ($) {
+            $('.clickable-row_val').css('cursor', 'pointer');
+             $(".clickable-row_val").click(function () {
+                  window.opener.set_pes($(this).data("href"));
+                  window.close();
+              }
+            );
+    })(jQuery)
+</script>
+
+{% endblock morejs %}
+
+{% endblock %}

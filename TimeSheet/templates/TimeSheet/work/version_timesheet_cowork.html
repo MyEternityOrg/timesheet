@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% load filtertags %}
+
+{% block title %}
+    Версии подработок "{{ sheet_shop }}" за "{{ dts|date:"F Y" }}" {{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+    <form action="" method="post">
+        {% csrf_token %}
+
+        <div class="form-group col-sm-auto">
+            <div class="fixed-table-toolbar">
+                <table id="datatable" class="table table-bordered table-hover table-sm" data-page-length='100'>
+                    <thead class="thead-light">
+                    <tr class="small">
+                        <th>S/N</th>
+                        <th>Дата версии</th>
+                        <th>Дата подработки</th>
+                        <th>Автор</th>
+                        <th>Сотрудник</th>
+                        <th>Должность</th>
+                        <th>График</th>
+                        <th>Структурная Единица</th>
+                        <th>Заменяемый</th>
+                        <th>Совмещение</th>
+                        <th>Служебная Записка</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    {% for rowdata in init %}
+                        <tr {% if  rowdata.change_status  == 1 %} class="small alert-danger"
+                        {% elif rowdata.cowork_state == 1 %} class="small alert-success" {% else %} class="small" {% endif %}>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ rowdata.record_date }}</td>
+                            <td>{{ rowdata.dts }}</td>
+                            <td>{{ rowdata.author }}</td>
+                            <td>{{ rowdata.foworker_guid }}</td>
+                            <td>{{ rowdata.position_guid }}</td>
+                            <td>{{ rowdata.shedule_guid }}</td>
+                            <td>{{ rowdata.coworker_enterprise_guid }}</td>
+                            <td>{{ rowdata.coworker_guid }}</td>
+                            <td align="center" valign="middle">
+                                <input class="checkbox-row" type="checkbox" disabled {% if rowdata.cowork_state == 1 %}
+                                       checked {% endif %}>
+                            </td>
+                            <td align="center" valign="middle">
+                                <input class="checkbox-row" type="checkbox" disabled {% if rowdata.service_note == 1 %}
+                                       checked {% endif %}>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <input type="hidden" name="person" value={{ person }}>
+        <input type="hidden" name="person" value={{ p_uid }}>
+    </form>
+
+    {% block morejs %}
+
+        <script>
+
+            $('#datatable').DataTable();
+
+        </script>
+
+    {% endblock morejs %}
+
+{% endblock %}

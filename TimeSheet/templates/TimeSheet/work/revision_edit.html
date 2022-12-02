@@ -1,0 +1,60 @@
+{% extends 'base_copy.html' %}
+{% load static %}
+{% load l10n %}
+
+{% block title %}
+{% localize on %}
+Даты ревизий {{ block.super }}
+{% endlocalize %}
+{% endblock %}
+
+
+{% block content %}
+
+<form action="" method="post">
+
+    <ol class="breadcrumb float-sm-right">
+        <li>
+            <input type="submit" class="btn btn-success" value="Сохранить" name="close_revision">
+            <input type="submit" class="btn btn-primary" value="Закрыть" name="close_revision">
+        </li>
+    </ol>
+
+
+    {% csrf_token %}
+    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+        {% if enterprise_uid == None %}
+            <p><label for="enterprise_guid">Структурная Единица: </label><input type="text" name="enterprise_uid" required="" id="enterprise_uid" value="---Подразделение---" disabled>
+        {% else %}
+            <p><label for="enterprise_guid">Структурная Единица: </label><input type="text" name="enterprise_uid" required="" id="enterprise_uid" value={{enterprise_uid}} disabled>
+        {% endif %}
+        <input type="button" value="..." onclick="myWindow()"></p>
+        <p><label for="revision_date">Дата ревизии: </label><input type="date" name="revision_date" required="" id="revision_date" value={{revision_date}}> </p>
+        <p><label>{{changetime}}</label></p>
+
+    </div>
+
+     <input type="hidden" name="uid" value={{uid}}>
+    {% if enterprise_uid != None %}
+        <input type="hidden" name="ent_uid" id="ent_uid" value={{enterprise_uid.guid}}>
+    {% else %}
+        <input type="hidden" name="ent_uid" id="ent_uid">
+    {% endif %}
+
+{% block morejs %}
+<script>
+
+function myWindow(){
+    var _url = '/select_enterprise';
+    window.open(_url, "", "width=600,height=600");
+};
+
+function set_ent(val){
+    $("#enterprise_uid").val(val.substr(37));
+    $("#ent_uid").val(val.substr(0,36));
+}
+</script>
+
+{% endblock morejs %}
+
+{% endblock %}

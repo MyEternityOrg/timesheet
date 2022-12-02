@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% load filtertags %}
+
+{% block title %}
+Табель "{{ sheet_shop }}" за "{{ dts }}" {{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+<form action="" method="post">
+
+    <ol class="breadcrumb float-sm-right">
+        <li>
+            <input type="submit" class="btn btn-success" value="Табель" name="close_table">
+            <input type="submit" class="btn btn-primary" value="Закрыть" name="close_table">
+        </li>
+    </ol>
+
+    <ol class="breadcrumb float-sm-left">
+        <li>
+            <input type="submit" class="btn btn-success" value="Добавить" name="close_table">
+        </li>
+    </ol>
+
+    {% csrf_token %}
+    <table id="data_coworker" class="table table-bordered table-sm">
+        <thead class="thead-light">
+        <tr>
+            <th rowspan="2" align="center" valign="middle">Дата</th>
+            <th align="center" valign="middle">Сотрудник</th>
+            <th align="center" valign="middle">Структурная Единица</th>
+            <th align="center" valign="middle">Должность</th>
+            {% if hidden_h %}
+                <th align="center" valign="middle">Часы</th>
+                <th align="center" valign="middle">Дата учета РВ</th>
+            {% endif %}
+            <th align="center" valign="middle"></th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for data in dataset %}
+                <tr>
+                    <td>{{ data.dts_audit }}</td>
+                    <td>{{ data.coworker_guid }}</td>
+                    <td>{{ data.enterprise_guid }}</td>
+                    <td>{{ data.position_guid }}</td>
+                    {% if hidden_h %}
+                        <td>{{ data.count_hours }}</td>
+                        <td>{{ data.dts }}</td>
+                    {% endif %}
+                    <td><a href="{% url 'deleted_rework' enterprise data.coworker_guid.guid dts.year dts.month dts.day  %}">Удалить</a></td>
+                </tr>
+            {% endfor%}
+        </tbody>
+    </table>
+
+    <input type="hidden" name="enterprise" value={{enterprise}}>
+    <input type="hidden" name="month" value={{dts.month}}>
+    <input type="hidden" name="year" value={{dts.year}}>
+    <input type="hidden" name="day" value={{dts.day}}>
+    <input type="hidden" name="len_str" value={{len_str}}>
+
+</form>
+
+{% block morejs %}
+
+<script>
+function sel_onchange(guid_p, amount_p, guid_f, amount_f) {
+    if (guid_p == guid_f){
+        var str = '';
+        str = amount_p.replace(",", ".");
+        amount_f.value = parseFloat(str);
+    }else{
+        amount_f.value = 0;
+    }
+}
+
+
+function displayResult() {
+    document.getElementById("data_coworker").insertRow(-1).innerHTML = '<td>1</td><td>2</td>';
+}
+</script>
+
+{% endblock morejs %}
+
+{% endblock %}

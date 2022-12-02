@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load l10n %}
+
+
+{% block title %}
+    {% localize on %}
+        Табель "{{ sheet_shop }}" за "{{ date_sheet }}" {{ block.super }}
+    {% endlocalize %}
+
+    <!--    <ol class="breadcrumb float-sm-right">-->
+    <!--        <li>-->
+    <!--            <input type="submit" class="btn btn-success" value="Табель" name="close_table">-->
+    <!--            <input type="submit" class="btn btn-primary" value="Закрыть" name="close_table">-->
+    <!--        </li>-->
+    <!--    </ol>-->
+
+{% endblock %}
+
+{% block content %}
+
+    <form action="" method="post">
+        {% csrf_token %}
+
+
+        <div>
+            <p>{{ sheet_shop }}</p>
+            <p>Дата печати: {{ today }}</p>
+
+            <div>
+                <table border="1" id="datatable" class="table table-bordered table-sm">
+                    <style>
+                        .descr {
+                            font-family: 'Times New Roman', Times, serif;
+                            font-size: 8.5pt;
+                        }
+
+                        p {
+                            font-family: 'Times New Roman', Times, serif;
+                            font-size: 12pt;
+                        }
+                    </style>
+
+                    <thead>
+                    <tr>
+                        <th align="center" valign="middle"><p>Сотрудник</p></th>
+                        <th align="center" valign="middle"><p>Должность <br> График</p></th>
+                        {% for date in dict_moth %}
+                            <th align="center" valign="middle">{{ date }} <br> {{ dict_moth|get_item:date }} </th>
+                        {% endfor %}
+                        <th align="center" valign="middle">Итог</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        {% for detail in dict_fio %}
+                            <tr>
+                                <td align="center" valign="middle"><p>{{ detail }}</p></td>
+                                <td align="center" valign="middle"><p>{{ dict_pos|get_item:detail }} <br>
+                                   {{ dict_shedule|get_item:detail }} </p></td>
+                                {% for date in dict_moth %}
+                                    {% if dict_fio|get_item:detail|get_item:date != None %}
+                                        <td align="center"
+                                            valign="middle">{{ dict_fio|get_item:detail|get_item:date }}</td>
+                                    {% else %}
+                                        <td align="center" valign="middle"></td>
+                                    {% endif %}
+                                {% endfor %}
+
+                                <td align="center" valign="middle"><p>
+                                    {% for buse in dict_total_pers|get_item:detail %}
+                                        {{ buse }}({{ dict_total_pers|get_item:detail|get_item:buse }}) <br>
+                                    {% endfor %}
+                                </p></td>
+                            </tr>
+                        {% endfor %}
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div>
+            {% if dict_day_cowork %}
+            <label>Подработки</label>
+                <table id="datatable_cowork" class="table table-bordered table-sm">
+                    <thead>
+                    <tr>
+                        <th align="center" valign="middle"><p>Сотрудник</p></th>
+                        <th align="center" valign="middle"><p>Должность</p></th>
+                        {% for date in dict_moth %}
+                            <th align="center" valign="middle">{{ date }} <br> {{ dict_moth|get_item:date }} </th>
+                        {% endfor %}
+                        <th align="center" valign="middle">Итог</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for pers in dict_day_cowork %}
+                        <tr>
+                            <td>{{ pers.person }}</td>
+                            <td></td>
+                            {% for date in dict_moth %}
+                                <td>
+                                {% if date in pers.day_work %}
+                                    РВ
+                                {% endif %}
+                                </td>
+                            {% endfor %}
+                            <td>РВ({{ pers.total_day }})</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+            </div>
+        </div>
+
+    </form>
+
+{% endblock %}

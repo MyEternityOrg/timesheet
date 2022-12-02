@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load l10n %}
+
+
+{% block title %}
+    {% localize on %}
+        {#        Отчет по отработанному времни: {{ dts_begin }} - {{ dts_end }}{{ block.super }}#}
+        Отчет по отработанному времни
+    {% endlocalize %}
+
+{% endblock %}
+
+{% block content %}
+
+    <form action="" method="post">
+        <style>
+            .descr {
+                display: none;
+                opacity: 0;
+            }
+
+        </style>
+
+        {% csrf_token %}
+        <div class="mb-2">
+            <label for="dts_begin">Периода с: </label><input type="date" name="dts_begin" required="" id="dts_begin"
+                                                             value={{ dts_begin }}>
+            <label for="dts_end"> по: </label><input type="date" name="dts_end" required="" id="dts_end"
+                                                     value={{ dts_end }}>
+            <button type="button" class="btn btn-success" name="close_table" onclick="reload_data()">Сформировать
+            </button>
+        </div>
+        <div id="layoutSidenav_content">
+            <div>
+                <div class="container-fluid">
+                    <div class="row mb-3">
+                        <div class="col col-sm-auto mb-auto">
+                            <div class="input-group mb-1">
+                                <input type="text" class="form-control" required="" id="enterprise_guid_to_label"
+                                       placeholder="--Выберите подразделение--"
+                                       aria-label="--Выберите подразделение--" size="50" disabled>
+                                <button class="btn btn-outline-secondary btn-sm" type="button"
+                                        onclick="myWindowEnter()">...
+                                </button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="clear_ent()">X</button>
+                            </div>
+                        </div>
+                        <div class="col col-sm-auto mb-auto">
+                            <div class="input-group mb-1">
+                                <input type="text" class="form-control" required="" id="personal"
+                                       placeholder="--Выберите сотрудника--"
+                                       aria-label="--Выберите сотрудника--" size="50" disabled>
+                                <button class="btn btn-outline-secondary btn-sm" type="button" onclick="mypersonal()">
+                                    ...
+                                </button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="clear_pes()">X</button>
+                            </div>
+                        </div>
+                            <div>
+                                <a id="exp" type="button" class="btn btn-outline-primary">Сохранить в Excel</a>
+                            </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <table border="1" id="datatablePers" class="table ">
+                <thead class="thead-light">
+                <tr>
+                    <th>Сотрудник</th>
+                    <th>Подразделение</th>
+                    <th>Должность</th>
+                    <th>Кол-во дней</th>
+                    <th>Даты месяца выхода в РВ</th>
+                </tr>
+                </thead>
+                <tbody>
+                <div class="accordion" id="accordionExample">
+                    {% for rowdata in init %}
+                        <div class="accordion-item">
+                        <div class="accordion-header" id="heading{{ forloop.counter0 }}">
+                            <tr>
+                                <td>
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapse{{ forloop.counter0 }}" aria-expanded="true"
+                                            aria-controls="collapse{{ forloop.counter0 }}"
+                                            onclick="tr_hidden('tr_hidden{{ forloop.counter0 }}')">
+                                        +
+                                    </button>
+                                    <strong>{{ rowdata.person_guid }}</strong>
+                                </td>
+                                <td><strong>{{ rowdata.enterprise }}</strong></td>
+                                <td><strong>{{ rowdata.position }}</strong></td>
+                                <td><strong>{{ rowdata.days_cnt }}</strong></td>
+                                <td></td>
+                            </tr>
+                        </div>
+                        {% for detail_row in rowdata.detail %}
+                            <tr class="tr_hidden{{ forloop.parentloop.counter0 }}" hidden>
+                                <td>
+                                    <div id="collapse{{ forloop.parentloop.counter0 }}"
+                                         class="accordion-collapse collapse"
+                                         aria-labelledby="heading{{ forloop.parentloop.counter0 }}"
+                                         data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <i>{{ detail_row.person_guid }}</i>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div id="collapse{{ forloop.parentloop.counter0 }}"
+                                         class="accordion-collapse collapse"
+                                         aria-labelledby="heading{{ forloop.parentloop.counter0 }}"
+                                         data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <i>{{ detail_row.enterprise }}</i>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div id="collapse{{ forloop.parentloop.counter0 }}"
+                                         class="accordion-collapse collapse"
+                                         aria-labelledby="heading{{ forloop.parentloop.counter0 }}"
+                                         data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <i>{{ detail_row.position }}</i>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div id="collapse{{ forloop.parentloop.counter0 }}"
+                                         class="accordion-collapse collapse"
+                                         aria-labelledby="heading{{ forloop.parentloop.counter0 }}"
+                                         data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <i>{{ detail_row.days_cnt }}</i>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div id="collapse{{ forloop.parentloop.counter0 }}"
+                                         class="accordion-collapse collapse"
+                                         aria-labelledby="heading{{ forloop.parentloop.counter0 }}"
+                                         data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            <i>{{ detail_row.cw_data }}</i>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                    </div>
+                </tbody>
+            </table>
+
+            <input type="hidden" name="enterprise_guid" id="enterprise_guid" value={{ enterprise_guid }}>
+            <input type="hidden" name="personal_guid" id="personal_guid" value={{ personal_guid }}>
+            {#    <input type="hidden" name="dts_begin" id="dts_begin" value={{ dts_begin }}>#}
+            {#    <input type="hidden" name="dts_end" id="dts_end" value={{ dts_end }}>#}
+
+            <div class="text-center">
+                <div class="spinner-border" id='spinner' style="width: 3rem; height: 3rem;" role="status" hidden>
+                    <span class="visually-hidden"></span>
+                </div>
+            </div>
+
+            <!--MODAL-->
+            <div class="modal bd-example-modal-lg" id="ModalWindow" tabindex="-1" role="dialog"
+                 aria-labelledby="ModalWindowLg"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    {% include "TimeSheet/part_form/spinner_small.html" %}
+                    <div class="modal-content">
+                    </div>
+                    <a href="#close-modal" rel="modal:close" class="close-modal ">Close</a>
+                </div>
+            </div>
+    </form>
+
+    {% block morejs %}
+
+        <script>
+
+            $(document).ready(function () {
+                preview_excel('exp', 'datatablePers', 'hours_worked_ex');
+            });
+
+            function myWindowEnter() {
+                {#var _url = '/select_enterprise';#}
+                {#window.open(_url, "", "width=600,height=600");#}
+                document.getElementById('spinner_small').hidden = false;
+                $("#ModalWindow .modal-content").html('Загрузка.....');
+                var _url = '/select_enterprise/';
+                $("#ModalWindow").modal("show");
+                $.ajax({
+                    url: _url,
+                    type: 'get',
+                    success: function (data) {
+                        $("#ModalWindow .modal-content").html(data);
+                        document.getElementById('spinner_small').hidden = true;
+                    }
+                })
+            };
+
+
+            function set_ent(val) {
+                $("#enterprise_guid_to_label").val(val.substr(37));
+                $("#enterprise_guid").val(val.substr(0, 36));
+                $("#ModalWindow").modal("hide");
+            }
+
+            function myWindow() {
+                location.reload()
+            };
+
+
+            function mypersonal() {
+                document.getElementById('spinner_small').hidden = false;
+                $("#ModalWindow .modal-content").html('Загрузка.....');
+                var _url = '/select_all_staff/';
+                $("#ModalWindow").modal("show");
+                {#$("#ModalWindow .modal-content").html('Идет загрузка данных...');#}
+                {#document.getElementById('spinner_modal').hidden = true;#}
+                $.ajax({
+                    url: _url,
+                    type: 'get',
+                    success: function (data) {
+                        $("#ModalWindow .modal-content").html(data);
+                        document.getElementById('spinner_small').hidden = true;
+                    }
+                })
+            };
+
+
+            function set_pes(guid, name) {
+                $('#personal').val(name);
+                $('#personal_guid').val(guid);
+                $("#ModalWindow").modal("hide");
+            };
+
+
+            function clear_ent() {
+                $("#enterprise_guid_to_label").val('');
+                $("#enterprise_guid").val('');
+            };
+
+            function clear_pes() {
+                $('#personal').val('');
+                $('#personal_guid').val('');
+            };
+
+            function reload_data() {
+                $("#datatablePers").html("");
+                document.getElementById('spinner').hidden = false;
+                $.ajax({
+                    type: "GET",
+                    url: '{{ '/print_hours_worked_ex/' }}',
+                    data: {
+                        enterprise_guid: $('#enterprise_guid').val(),
+                        dts_begin: $('#dts_begin').val(),
+                        dts_end: $('#dts_end').val(),
+                        pers_guid: $('#personal_guid').val(),
+                    },
+                    success: function callback(data) {
+                        $("#datatablePers").html(data);
+                        document.getElementById('spinner').hidden = true;
+                        preview_excel('exp', 'datatablePers', 'hours_worked_ex');
+                    }
+                });
+            };
+
+            function tr_hidden(id) {
+                var list_el = document.getElementsByClassName(id);
+
+                for (let i = 0, max = list_el.length; i < max; i++) {
+                    list_el[i].hidden = !list_el[i].hidden
+                }
+            }
+
+        </script>
+
+
+
+    {% endblock morejs %}
+{% endblock %}
+

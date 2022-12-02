@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+{% block morehead %}
+
+{% endblock %}
+
+{% block content %}
+
+
+    <section class="meetings-page" id="meetings">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row grid">
+
+                                <div class="col-lg-4 templatemo-item-col all soon">
+                                    <div class="meeting-item">
+                                        <a href="{% url 'table-list' %}">
+                                            <div class="thumb">
+{#                                                <div class="price">#}
+{#                                                    <span>100</span>#}
+{#                                                </div>#}
+
+                                                <img src="{% static 'dist/img/timesheet.jpg' %}"
+                                                     alt="">
+                                            </div>
+                                            <div class="down-content">
+                                                <h3>Табель</h3>
+                                                <p>Учет рабочего времени сотрудников</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-lg-4 templatemo-item-col all soon">
+                                    <div class="meeting-item">
+                                        <a href="http://192.168.108.18:8081/">
+                                            <div class="thumb">
+{#                                                <div class="price">#}
+{#                                                    <span>100</span>#}
+{#                                                </div>#}
+
+                                                <img src="{% static 'dist/img/prr.jpg' %}"
+                                                     alt="">
+                                            </div>
+                                            <div class="down-content">
+                                                <h3>Табел ПРР</h3>
+                                                <p>Учет рабочего времени аутсорса</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                 <div class="col-lg-4 templatemo-item-col all soon">
+                                    <div class="meeting-item">
+                                        <a href="{% url 'mtv_cachier_header' %}">
+                                            <div class="thumb">
+{#                                                <div class="price">#}
+{#                                                    <span>100</span>#}
+{#                                                </div>#}
+
+                                                <img src="{% static 'dist/img/otchet2.jpg' %}"
+                                                     alt="">
+                                            </div>
+                                            <div class="down-content">
+                                                <h3>Мотивация</h3>
+                                                <p>Список сотрудников (кассиров) с допполнительной мотивацией</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4 templatemo-item-col all soon">
+                                    <div class="meeting-item">
+                                        <a href="{% url 'person_covid' %}">
+                                            <div class="thumb">
+{#                                                <div class="price">#}
+{#                                                    <span>100</span>#}
+{#                                                </div>#}
+
+                                                <img src="{% static 'dist/img/covid.jpg' %}"
+                                                     alt="">
+                                            </div>
+                                            <div class="down-content">
+                                                <h3>Covid</h3>
+                                                <p>Заполнение данных по Covid</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+
+    {% block morejs %}
+    {% endblock morejs %}
+
+{% endblock %}

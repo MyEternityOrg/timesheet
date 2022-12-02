@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% load filtertags %}
+
+{% block title %}
+    Табель "{{ sheet_shop }}" за "{{ dts }}" {{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+    <form action="" method="post">
+
+        <style>
+            .descr {
+                visibility: hidden;
+            }
+        </style>
+
+        <ol class="breadcrumb float-sm-right">
+            <li>
+                <input type="submit" class="btn btn-success" value="Сохранить" name="close_table">
+                <input type="submit" class="btn btn-primary" value="Закрыть" name="close_table">
+            </li>
+        </ol>
+
+        <ol class="breadcrumb float-sm-left">
+            <li>
+                <input type="submit" class="btn btn-success" value="Подработки/Совмещения" name="close_table">
+                {% if disabled_revision %}
+                    <input type="submit" class="btn btn-success" value="Ревизия" name="close_table" disabled>
+                {% else %}
+                    <input type="submit" class="btn btn-success" value="Ревизия" name="close_table">
+                {% endif %}
+                {% if enterprise_code == 2 %}
+                    <input type="button" class="btn btn-success" value="Заполнить" name="ref" onclick="fill_table()">
+                {% endif %}
+            </li>
+        </ol>
+
+        {% csrf_token %}
+        <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+
+            <table id="table_sheet" class="table table-bordered table-sm">
+                <thead>
+                <tr>
+                    {% for form in formset %}
+                        {% if forloop.first %}
+                            <th rowspan="2">{{ 'Сотрудник' }}</th>
+                            <th>{{ 'Должность' }}</th>
+                            <th rowspan="2">{{ 'План' }}</th>
+                            <th rowspan="2">{{ 'Факт' }}</th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                <tr>
+                    {% for form in formset %}
+                        {% if forloop.first %}
+                            <th>{{ 'График' }}</th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for form in formset %}
+                    <tr>
+                        <td rowspan="2"> {{ form.instance.person_guid }}</td>
+                        <td> {{ form.instance.position_guid }}</td>
+                        <td> {{ form.instance.busy_key_guid }}</td>
+
+                        {% for form_f in form_fact %}
+                            {% if form_f.p_uid.p_uid == form.visible_fields.2 %}
+                                <td> {{ form_f.visible_fields.0 | add_class:"form-control form-control-sm" }}</td>
+                            {% endif %}
+                        {% endfor %}
+
+                        <td><select
+                                onchange="sel_onchange('{{ form.instance.busy_key_guid.guid }}', '{{ form.instance.hours_all }}' , this.options[this.selectedIndex].value, form_fact_amount_{{ forloop.counter0 }}, '{{ form.instance.position_guid.guid }}', '{{ form.instance.p_uid }}')"
+                                name="form-busy_key_guid_{{ forloop.counter0 }}" class="form-control form-control-sm"
+                                id="id_form-busy_key_guid_{{ forloop.counter0 }}">
+                            {% for listbusy in tag_fact|get_item:form.visible_fields.2.value %}
+                                {% if forloop.first %}
+                                    {% for busy in listbusy %}
+                                        {% if busy.select == 1 %}
+                                            <option value={{ busy.guid }} selected> {{ busy.key }}</option>
+                                        {% else %}
+                                            <option value={{ busy.guid }}> {{ busy.key }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                        </select></td>
+                        <td style="display: none;"> {{ form.visible_fields.2 }}</td>
+                    </tr>
+                    <tr>
+                        <td> {{ form.instance.shedule_guid }}</td>
+                        {% if hidden_h %}
+                            <td>{{ form.instance.hours_all }}</td>
+                            <td>
+                            {% for listbusy in tag_fact|get_item:form.visible_fields.2.value %}
+                                {% if forloop.last %}
+                                    <input type="number" name="form_fact_amount_{{ forloop.parentloop.counter0 }}"
+                                               value={{ listbusy|init_number }} step="any"
+                                               class="form-control form-control-sm"
+                                               id="form_fact_amount_{{ forloop.parentloop.counter0 }}">
+                                {% endif %}
+                            {% endfor %}
+                            </td>
+                        {% else %}
+                            <td></td>
+                            <td>
+                            {% for listbusy in tag_fact|get_item:form.visible_fields.2.value %}
+                                {% if forloop.last %}
+                                    <input type="number" name="form_fact_amount_{{ forloop.parentloop.counter0 }}"
+                                               value={{ listbusy|init_number }} step="any"
+                                               class="form-control form-control-sm descr"
+                                               id="form_fact_amount_{{ forloop.parentloop.counter0 }}">
+                                {% endif %}
+                            {% endfor %}
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <input type="hidden" name="enterprise" value={{ enterprise }}>
+        <input type="hidden" name="month" value={{ dts.month }}>
+        <input type="hidden" name="year" value={{ dts.year }}>
+        <input type="hidden" name="day" value={{ dts.day }}>
+        <input type="hidden" name="len_str" value={{ len_str }}>
+
+    </form>
+
+    {% block morejs %}
+
+        <script>
+
+            function sel_onchange(guid_p, amount_p, guid_f, amount_f, position_guid, p_uid) {
+                if (guid_f == '738B3875-17E4-11E9-80D0-E41F13C123D6') { {#РВ#}
+                    var _url = '/{{enterprise}}/' + position_guid + '/{{dts.year}}/{{dts.month}}/{{dts.day}}/select_cowork/1/' + p_uid;
+                    window.open(_url, "", "width=600,height=600, status=yes, toolbar=no, menubar=no, location=no,addressbar=no");
+                    location.reload()
+                } else {
+                    if (guid_p == guid_f) {
+                        var str = '';
+                        str = amount_p.replace(",", ".");
+                        amount_f.value = parseFloat(str);
+                    } else {
+                        amount_f.value = 0;
+                    }
+
+                    $.ajax({
+                            type: "POST",
+                            url: '{{ '/ajax_record_sheet/' }}',
+                            data: {
+                                csrfmiddlewaretoken: '{{ csrf_token }}',
+                                p_uid: p_uid,
+                                f_busy: guid_f,
+                                f_amount: amount_f.value
+                            },
+                            success: function callback(response) {
+                                window.location.reload();
+                            }
+                        }
+                    )
+                }
+            }
+
+            function fill_table() {
+
+                $.ajax({
+                        type: "POST",
+                        url: '{{ '/ajax_fill_table/' }}',
+                        data: {
+                            csrfmiddlewaretoken: '{{ csrf_token }}',
+                            enterprise: '{{enterprise}}',
+                            dts: '{{dts|date:"Y-m-d"}}'
+                        },
+                        success: function callback(response) {
+                            location.reload()
+                        }
+                    }
+                )
+
+            }
+
+            function set_pes(val, p_uid) {
+
+                var pers_guid = val.substr(0, 36)
+                var shedule_guid = val.substr(37, 36)
+                var position_guid = val.substr(74, 36)
+                var pers_first_guid = val.substr(111, 36)
+
+                $.ajax({
+                        type: "POST",
+                        url: '{{ '/ajax_record_sheet_rv/' }}',
+
+                        data: {
+                            csrfmiddlewaretoken: '{{ csrf_token }}',
+                            pers: pers_guid,
+                            shedule: shedule_guid,
+                            dts: '{{dts|date:"Y-m-d"}}',
+                            enterprise: '{{enterprise}}',
+                            position: position_guid,
+                            pers_first: pers_first_guid,
+                            'p_uid': p_uid
+                        },
+                        success: function callback(response) {
+                            location.reload()
+                        }
+                    }
+                )
+            }
+
+
+        </script>
+
+    {% endblock morejs %}
+
+{% endblock %}

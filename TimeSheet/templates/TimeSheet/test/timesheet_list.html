@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Список табелей{% endblock title %}
+
+{% block content %}
+
+<div class="fixed-table-toolbar">
+<!-- Модальное окно -->
+   {% if not user.profileuser.entreprise is None %}
+<div class="modal fade" id="ModalWindow" tabindex="-1" aria-labelledby="ModalWindow" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fa fa-bell" id="ModalWindow">Напоминание</h5>
+      </div>
+      <div class="modal-body">
+          <h4>Не забудьте заполнить табель ПРР!</h4>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+      </div>
+    </div>
+  </div>
+</div>
+    {% endif %}
+    <table id="datatable" class="table table-bordered table-hover" data-page-length='10'>
+    <ol class="breadcrumb">
+        <li>
+            <input type="button" class="btn btn-success" value="Фильтр" name="filter" onclick="filter_table()"> <label>{{ str_filter }}</label>
+        </li>
+    </ol>
+      <thead class="thead-light">
+        <tr>
+<!--          <th>S/N</th>-->
+          <th>Подразделение</th>
+          <th>Месяц</th>
+          <th>Год</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rowdata in data_set %}
+          <tr class={% if otiz %} 'clickable-row_new' {% else %} 'clickable-row' {% endif %} data-href="{% url 'table-sheet' rowdata.enterprise_guid rowdata.year rowdata.month %}">
+<!--            <td>{{ forloop.counter}}</td>-->
+            <td>{{ rowdata.enterprise_guid__name}}</td>
+            <td>{{ dict_month|get_item:rowdata.month }}</td>
+            <td>{{ rowdata.year}}</td>
+          </tr>
+        {% endfor %}
+
+      </tbody>
+    </table>
+  {% endblock content %}
+</div>
+
+
+
+
+{% block morejs %}
+<script>
+  $('#datatable').DataTable({
+  responsive: true
+  });
+
+  function filter_table(){
+        var _url = '/filter/';
+                    window.open(_url, "", "width=650,height=500, status=yes, toolbar=no, menubar=no, location=no,addressbar=no");
+  };
+
+  function func_reload_filter() {
+      location.reload()
+  };
+
+  $(document).ready(function () {
+      $("#ModalWindow").modal("show");
+  });
+</script>
+
+{% endblock morejs %}

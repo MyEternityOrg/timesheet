@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block title %} Подбор сотрудников {{ block.super }} {% endblock %}
+
+{% block content %}
+
+<form action="" method="post">
+      {% csrf_token %}
+
+      <div class="fixed-table-toolbar">
+            <table id="datatable" class="table table-bordered table-hover" data-page-length='10'>
+                  <thead class="thead-light">
+                  <tr>
+                        <th>S/N</th>
+                        <th>Сотрудник</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+
+                  {% for rowdata in init %}
+                  <tr class='clickable-row_val'
+                      data-href="{{rowdata.guid}}|{{ rowdata }}" onclick='trclick()'>
+                        <td>{{ forloop.counter}}</td>
+                        <td>{{ rowdata}}</td>
+                  </tr>
+                  {% endfor %}
+                  </tbody>
+            </table>
+
+      </div>
+</form>
+
+{% block morejs %}
+
+    <script>
+
+        $('#datatable').DataTable({
+            responsive: true
+        });
+
+
+        function trclick(){
+            $('.clickable-row_val').css('cursor', 'pointer');
+            $(".clickable-row_val").click(function () {
+                    window.opener.set_pes($(this).data("href"));
+                    window.close();
+                }
+            );
+        }
+
+    </script>
+
+{% endblock morejs %}
+
+{% endblock %}

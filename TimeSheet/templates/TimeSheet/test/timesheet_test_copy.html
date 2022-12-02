@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load l10n %}
+
+{% block title %}
+{% localize on %}
+Табель "{{ sheet_shop }}" за "{{ date_sheet }}" {{ block.super }}
+{% endlocalize %}
+{% endblock %}
+
+{% block content %}
+
+<form action="" method="post">
+    {% csrf_token %}
+
+
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Основное</a>
+  </li>
+  <li class="nav-item" role="presentation">
+    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Подработки/Совмещения</a>
+  </li>
+  <li class="nav-item" role="presentation">
+      <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact"
+         aria-selected="false">Ревизия</a>
+  </li>
+  <li class="nav-item">
+      <a class="btn btn-success" id="print_tab" href="{% url 'table-print' enterprise year month %}">Печать</a>
+<!--      <a class="btn" type="button" onclick="myWindow()" id="print_tab">Печать</a>-->
+  </li>
+</ul>
+
+    <style>
+            .descr {
+                font-family: 'Times New Roman', Times, serif;
+                font-size:8.5pt;
+            }
+            p {
+              font-family: 'Times New Roman', Times, serif;
+              font-size:12pt;
+            }
+
+    </style>
+    <div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active overflow-auto" id="home" role="tabpanel" aria-labelledby="home-tab">
+        <table id="datatable"  class="table table-bordered table-sm fixtable">
+
+          <thead class="thead-light"><tr>
+            <th rowspan="2" align="center" valign="middle"><p>Сотрудник</p></th>
+            <th align="center" valign="middle">Должность</th>
+            <th rowspan="2" align="center" valign="middle"></th>
+            {% for date in list_date %}
+            <!--<th><a name=date>{{ date.day }}</a></th>-->
+            {% if day_open == 999 or day_open <= date.date.day and today >= date.date.day %}
+                {% if date.day_week == 6 %}
+                    <th bgcolor="red" align="center" valign="middle"><a href="{% url 'edit-table' enterprise date.date %}">{{ date.date.day }}</a></th>
+                {% else %}
+                    <th  align="center" valign="middle" ><a href="{% url 'edit-table' enterprise date.date %}">{{ date.date.day }}</a></th>
+                {% endif %}
+            {% else %}
+                {% if date.day_week == 6 %}
+                    <th bgcolor="red" align="center" valign="middle">{{ date.date.day }}</a></th>
+                {% else %}
+                    <th  align="center" valign="middle" >{{ date.date.day }}</a></th>
+                {% endif %}
+            {% endif %}
+            {% endfor %}
+        </tr>
+        <tr>
+            <th align="center" valign="middle">График</th>
+            {% for date in list_date %}
+                {% if day_open == 999 or day_open <= date.date.day and today >= date.date.day %}
+                    <th align="center" valign="middle"><a href="{% url 'edit-table' enterprise date.date %}">{{ date.day_week }}</a></th>
+                {% else %}
+                    <th align="center" valign="middle">{{ date.day_week }}</a></th>
+                {% endif %}
+            {% endfor %}
+        </tr>
+         </thead>
+        <tbody>
+        <tr>
+            {% for detail in data %}
+            <tr>
+            <td rowspan="2" align="center" valign="middle"><p><font color={{detail.b_color}}>{{ detail.person }}</font></p></td>
+            <td align="center" valign="middle"><p><font color={{detail.b_color}}>{{ detail.position }}</font></p></td>
+            <td align="center" valign="middle"><p><font size=2 color={{detail.b_color}}>{{ detail.Outcome }}</font></p></td>
+                {% for date in detail.date %}
+                {% if date.day_week == 6 or date.day_week == 5 %}
+                    <td bgcolor="#FFC9C9" align="center" valign="middle">
+                        {{ date.busy_key }}
+                        {% if hidden_h %}
+                            {% if date.hours > 0 %}
+                            <br>
+                            {{ date.hours }}
+                            </br>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                {% else %}
+                    <td align="center" valign="middle">
+                        <font color={{detail.b_color}}>
+                        {{ date.busy_key }}
+                        {% if hidden_h %}
+                            {% if date.hours > 0 %}
+                            <br>
+                            {{ date.hours }}
+                            </br>
+                            {% endif %}
+                        {% endif %} </font>
+                        </font>
+                    </td>
+                {% endif %}
+                {% endfor %}
+            </tr>
+            <tr>
+                <td align="center" valign="middle"><p>{{ detail.shedule }}</p></td>
+                <td align="center" valign="middle"><p><font size=2>{{ detail.Outcome_f }}</font></p></td>
+                {% for date in detail.date %}
+                {% if date.day_week == 6 or date.day_week == 5 %}
+                    <td bgcolor="#FFC9C9" align="center" valign="middle">
+                        {{ date.busy_key_fact }}
+                        {% if hidden_h %}
+                            {% if date.hours_fact > 0 %}
+                            <br>
+                            {{ date.hours_fact }}
+                            </br>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                {% else %}
+                    <td bgcolor="#E1E1E1"  align="center" valign="middle">
+                        {{ date.busy_key_fact }}
+                        {% if hidden_h %}
+                            {% if date.hours_fact > 0 %}
+                            <br>
+                            {{ date.hours_fact }}
+                            </br>
+                            {% endif %}
+                       {% endif %}
+                    </td>
+                {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tr>
+        </tbody>
+    </table>
+    </div>
+    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="contact-tab">
+        <table id="datatable_cowork"  class="table table-bordered table-sm">
+            <thead class="thead-light"><tr>
+                <th rowspan="2" align="center" valign="middle">Дата</th>
+                <th align="center" valign="middle">Сотрудник</th>
+                <th align="center" valign="middle">Структурная Единица</th>
+                <th rowspan="2" align="center" valign="middle">Заменяемый</th>
+                <th align="center" valign="middle">Должность</th>
+                <th align="center" valign="middle">График</th>
+                <th align="center" valign="middle">Совмещение</th>
+                {% if hidden_h %}
+                    <th align="center" valign="middle">Часы</th>
+                {% endif %}
+            </tr>
+            </thead>
+            <tbody>
+             {% for data in data_coworks %}
+                <tr>
+                    <td>{{ data.dts }}</td>
+                    <td>{{ data.coworker_guid }}</td>
+                    <td>{{ data.coworker_enterprise_guid }}</td>
+                    <td>{{ data.foworker_guid }}</td>
+                    <td>{{ data.position_guid }}</td>
+                    <td>{{ data.shedule_guid }}</td>
+                    <td>{{ data.cowork_state }}</td>
+                    {% if hidden_h %}
+                        <td>{{ data.count_hours }}</td>
+                    {% endif %}
+                </tr>
+            {% endfor%}
+            </tbody>
+        </table>
+     </div>
+    <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+
+        <table id="datatable_rework"  class="table table-bordered table-sm">
+            <thead class="thead-light"><tr>
+                <th align="center" valign="middle">Дата</th>
+                <th align="center" valign="middle">Сотрдуник</th>
+                <th align="center" valign="middle">Структурная Единица</th>
+                <th align="center" valign="middle">Должность</th>
+                <th align="center" valign="middle">Часы</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for data in data_reworks %}
+                <tr>
+                    <td>{{ data.dts }}</td>
+                    <td>{{ data.coworker_guid }}</td>
+                    <td>{{ data.enterprise_guid }}</td>
+                    <td>{{ data.position_guid }}</td>
+                    {% if hidden_h %}
+                        <td>{{ data.count_hours }}</td>
+                    {% endif %}
+                </tr>
+            {% endfor%}
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+    <input type="hidden" name="enterprise_guid" value={{enterprise}}>
+
+</form>
+
+{% block morejs %}
+<script>
+  $('#datatable').DataTable({
+  });
+
+
+  function myWindow(){
+
+        en_se = enterprise;
+
+        var _url = '/' + en_se + '/' +  '{{dts.year}}' + '/' + '{{dts.month}}' + '/print_table'/';
+        window.open(_url, "", "width=600,height=600, status=yes, toolbar=no, menubar=no, location=no,addressbar=no");
+
+        };
+
+});
+</script>
+
+{% endblock morejs %}
+
+{% endblock %}

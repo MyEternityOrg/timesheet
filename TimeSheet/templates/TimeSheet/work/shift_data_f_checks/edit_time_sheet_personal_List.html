@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% load filtertags %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+
+    <form action="" method="post">
+
+        {% csrf_token %}
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                   aria-selected="true">Основное</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="cowork-tab" data-toggle="tab" href="#cowork" role="tab"
+                   aria-controls="cowork" aria-selected="false">Подработки/Совмещения</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="rework-tab" data-toggle="tab" href="#rework" role="tab"
+                   aria-controls="rework"
+                   aria-selected="false">Ревизия</a>
+            </li>
+        </ul>
+
+        <div id="layoutSidenav_content">
+            <main>
+                <div class="tab-content table-responsive" id="myTabContent">
+                    <div class="tab-pane floatThead-container fade show active overflow-auto" id="home"
+                         role="tabpanel" aria-labelledby="home-tab">
+                        <div class="card-body">
+                            <div class="form-row">
+                                <div class="fixed-table-toolbar card-body">
+                                    <table class="table table-bordered table-hover" id="datatable" cellspacing="0">
+                                        <thead>
+                                        <tr>
+                                            <th>Дата</th>
+                                            <th>Сорудник</th>
+                                            <th>Код занятости</th>
+                                        </tr>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for edit_p in edit_sheet.data_timesheet %}
+                                            <tr class='clickable-row'
+                                                data-href="{% url 'edit_time_sheet_personal_create' edit_p.p_uid.p_uid 0 %}">
+                                                <td>{{ edit_p.p_uid.dts }}</td>
+                                                <td>{{ edit_p.p_uid.person_guid }}</td>
+                                                <td>{{ edit_p.busy_key_fact }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-4 tab-pane fade" id="cowork" role="tabpanel" aria-labelledby="cowork-tab">
+                        <div class="card-body">
+                            <div class="form-row">
+                                <div class="fixed-table-toolbar card-body">
+                                    <table class="table table-bordered table-hover" id="datatablecowork"
+                                           cellspacing="0">
+                                        <thead>
+                                        <tr>
+                                            <th>Дата</th>
+                                            <th>Сотрудник</th>
+                                            <th>Заменяемый</th>
+                                            <th>Подразделение</th>
+                                            <th>Должность</th>
+                                            <th>График</th>
+                                            <th>Совещение</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for edit_p in edit_sheet.data_coworks %}
+                                                <tr class='clickable-row'
+                                                    data-href="{% url 'edit_time_sheet_personal_create' edit_p.guid 1 %}">
+                                                    <td>{{ edit_p.dts }}</td>
+                                                    <td>{{ edit_p.coworker_guid }}</td>
+                                                    <td>{{ edit_p.foworker_guid }}</td>
+                                                    <td>{{ edit_p.enterprise_guid }}</td>
+                                                    <td>{{ edit_p.position_guid }}</td>
+                                                    <td>{{ edit_p.shedule_guid }}</td>
+                                                    <td>{{ edit_p.cowork_state }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4 tab-pane fade" id="rework" role="tabpanel" aria-labelledby="rework-tab">
+                        <div class="card-body">
+                            <div class="form-row">
+                                <div class="fixed-table-toolbar card-body">
+                                    <table class="table table-bordered table-hover" id="datatablecowork"
+                                           cellspacing="0">
+                                        <thead>
+                                        <tr>
+                                            <th>Дата</th>
+                                            <th>Сотурдник</th>
+                                            <th>Должность</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for edit_p in edit_sheet.data_reworks %}
+                                            <tr class='clickable-row'
+                                                data-href="{% url 'edit_time_sheet_personal_create' edit_p.guid 2 %}>
+                                                <td>{{ edit_p.dts }}</td>
+                                                <td>{{ edit_p.coworker_guid }}</td>
+                                                <td>{{ edit_p.position_guid }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+
+    </form>
+
+
+    {% block morejs %}
+
+        <script>
+{#            $('#datatable').DataTable({#}
+{#                responsive: true#}
+{#            });#}
+{#            $('#datatable_list').DataTable({#}
+{#                responsive: true#}
+{#            });#}
+        </script>
+
+    {% endblock morejs %}
+
+{% endblock %}

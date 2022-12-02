@@ -1,0 +1,47 @@
+{% load static %}
+{% load l10n %}
+
+<table border="1" id="datatablePers" class="table table-bordered table-sm table-hover table-striped">
+    <thead class="thead-light">
+    <tr>
+        <th>Сотрудник</th>
+        <th>Подразделение</th>
+        <th>Должность</th>
+        <th>Итого РВ</th>
+        <th>Итого Я</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    {% for row in init %}
+        <tr>
+            <td>{{ row.person }}</td>
+            <td>{{ row.ent }}</td>
+            <td>{{ row.pos }}</td>
+            <td>{{ row.count_bk_rv }}</td>
+            <td>{{ row.count_bk_i }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+<!-- REQUIRED SCRIPTS -->
+<!-- jQuery -->
+<script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'dist/js/jquery.formset.js' %}"></script>
+<!-- Bootstrap -->
+<script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'plugins/toastr/toastr.min.js' %}"></script>
+<!-- overlayScrollbars -->
+<script
+        src="{% static 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
+
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.js' %}"></script>
+
+<!-- OPTIONAL SCRIPTS -->
+<script src="{% static 'dist/js/demo.js' %}"></script>
+
+<script src="{% static 'plugins/jquery/jquery.floatThead.js' %}"></script>
+<script src="{% static 'plugins/jquery/jquery.floatThead.min.js' %}"></script>

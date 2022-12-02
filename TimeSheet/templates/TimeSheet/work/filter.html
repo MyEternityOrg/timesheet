@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load l10n %}
+
+{% block title %}
+    {% localize on %}
+        Фильтр
+    {% endlocalize %}
+{% endblock %}
+
+
+{% block content %}
+
+    <form action="" method="post">
+
+        {% csrf_token %}
+
+        <ol class="breadcrumb">
+            <li>
+                <input type="button" class="btn btn-success" value="OK" name="close_filter" onclick="close_form()">
+                <input type="submit" class="btn btn-primary" value="Закрыть" name="close_filter"
+                       onclick="window.close()">
+            </li>
+        </ol>
+
+        <p><label for="enterprise_guid_to_label">Подразделение: </label> <input type="text"
+                                                                                name="enterprise_guid_to_label"
+                                                                                required=""
+                                                                                id="enterprise_guid_to_label"
+                                                                                value='{{ent}}' size="50"
+                                                                                disabled><input type="button"
+                                                                                                value="..."
+                                                                                                onclick="myWindowEnter()">
+            <input type="button" value="x" onclick="deleteEn()">
+        </p>
+        <p><label for="person_guid_to_label">Сотрудник: </label><input type="text" name="person_guid_to_label"
+                                                                       required="" id="person_guid_to_label"
+                                                                       value='{{ pers }}' size="50"
+                                                                       disabled><input type="button" value="..."
+                                                                                       onclick="myWindow()">
+        <input type="button" value="x" onclick="deleteP()"></p>
+
+
+        <input type="hidden" name="person_guid_to" id="person_guid_to" value="">
+        <input type="hidden" name="enterprise_guid" id="enterprise_guid" value="">
+
+    </form>
+
+    {% block morejs %}
+        <script>
+
+            function myWindow() {
+
+                var _url = '/select_all_persons';
+                window.open(_url, "", "width=600,height=600, status=yes, toolbar=no, menubar=no, location=no,addressbar=no");
+
+            };
+
+            function myWindowEnter() {
+                var _url = '/select_enterprise';
+                window.open(_url, "", "width=600,height=600");
+            };
+
+
+            function set_pes(val) {
+                $("#person_guid_to_label").val(val.substr(37));
+                $("#person_guid_to").val(val.substr(0, 36));
+            }
+
+            function set_ent(val) {
+                $("#enterprise_guid_to_label").val(val.substr(37));
+                $("#enterprise_guid").val(val.substr(0, 36));
+            }
+
+
+            function close_form() {
+
+                $.ajax({
+                    type: "POST",
+                    url: '{{ '/filter/' }}',
+                    data: {
+                        csrfmiddlewaretoken: '{{ csrf_token }}',
+                        close_filter: 'OK',
+                        person_guid_to: $("#person_guid_to").val(),
+                        enterprise_guid: $("#enterprise_guid").val(),
+                    },
+                    success: function callback(response) {
+                        window.close()
+                        window.opener.func_reload_filter()
+                    },
+                })
+            }
+
+            function deleteEn(){
+                $("#enterprise_guid_to_label").val('--Подразделение--')
+                $("#enterprise_guid").val('')
+            }
+
+            function deleteP(){
+                $("#person_guid_to_label").val('--Выберите сотрудника--');
+                $("#person_guid_to").val('')
+            }
+        </script>
+
+    {% endblock morejs %}
+
+{% endblock %}

@@ -1,0 +1,73 @@
+{% load widget_tweaks %}
+{% load static %}
+{% load filtertags %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <title>
+        Подбор сотрудников "{{ sheet_shop }}" за "{{ dts }}" {{ block.super }}
+    </title>
+</head>
+<body>
+<!-- Main Sidebar Container -->
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+
+            <form action="" method="post">
+                {% csrf_token %}
+
+                <div class="fixed-table-toolbar">
+                    <div class="float-right search btn-group">
+                        <input class="form-control search-input" id="mySearch" type="search" placeholder="Search"
+                               autocomplete="off">
+                    </div>
+
+
+                    <table id="datatable" class="table table-bordered table-hover" data-page-length='100'>
+                        <thead class="thead-light">
+                        <tr>
+                            <th>S/N</th>
+                            <th>Сотрудник</th>
+                            <th>Должность</th>
+                            <th>График</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        {% for rowdata in init %}
+                            <tr class='clickable-row'
+                                onclick="set_pes('{{ rowdata.person_guid.guid }}', '{{ rowdata.shedule_guid.guid }}', '{{ rowdata.position_guid.guid }}', '{{ person }}', '{{ p_uid }}', '{{ rowdata.person_guid }}');"
+                                data-href="{{ rowdata.person_guid.guid }}, {{ rowdata.shedule_guid.guid }}, {{ rowdata.position_guid.guid }}, {{ person }}, {{ rowdata.person_guid }}">
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ rowdata.person_guid }}</td>
+                                <td>{{ rowdata.position_guid }}</td>
+                                <td>{{ rowdata.shedule_guid }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+
+                <input type="hidden" name="person" value={{ person }}>
+                <input type="hidden" name="person" value={{ p_uid }}>
+            </form>
+
+        </div>
+    </section>
+</div>
+
+<script>
+(function ($) {
+        $('.clickable-row').css('cursor', 'pointer');
+        $(".clickable-row").click(function () {
+            {#alert($(this).data("href"));#}
+            {#$("#ModalWindow").modal("hide");#}
+        });
+    })(jQuery)
+</script>
+</body>
+</html>

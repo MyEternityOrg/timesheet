@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% load filtertags %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <form action="" method="post">
+        {% csrf_token %}
+        <div id="layoutSidenav_content">
+            <div class="tab-content table-responsive" id="myTabContent">
+                <div class="tab-pane floatThead-container fade show active overflow-auto" id="home"
+                     role="tabpanel" aria-labelledby="home-tab">
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="fixed-table-toolbar card-body">
+                                <div class="form-group">
+                                    <label class="mb-1">Сотрудник: </label>
+                                    <input type="text" name="person_guid_to_label" required="" id="person_guid_to_label"
+                                           value="--Выберите сотрудника--" size="50" disabled><input
+                                        type="button" value="..." onclick="myWindow()"></p>
+                                </div>
+                                <div class="form-group">
+                                    <p><label class="mb-1" for="position_guid">Должность: </label>
+                                        <select name="position_guid" id="position_guid" required>
+                                            <option value="0000" selected>---------</option>
+                                            {% for pos in init_pos %}
+                                                <option value={{ pos.guid }}>{{ pos }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <ol class="breadcrumb float-sm-right">
+            <li>
+                <input type="submit" class="btn btn-success" value="Сохранить" name="close_table">
+                <input type="submit" class="btn btn-primary" value="Закрыть" name="close_table">
+            </li>
+        </ol>
+
+        <!--MODAL-->
+        <div class="modal bd-example-modal-lg" id="ModalWindow" tabindex="-1" role="dialog" aria-labelledby="ModalWindowLg"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    Идет загрузка данных...
+                </div>
+                <a href="#close-modal" rel="modal:close" class="close-modal ">Close</a>
+            </div>
+        </div>
+
+        <input type="hidden" name="person_guid_guid" id="person_guid_guid" value="">
+    </form>
+
+    <script>
+        function myWindow() {
+            var _url = '/select_all_staff';
+            $("#ModalWindow").modal("show");
+            $.ajax({
+                url: _url,
+                type: 'GET',
+                success: function callback(data) {
+                    $("#ModalWindow .modal-content").html(data);
+                }
+            })
+        };
+
+        function set_pes(guid, name) {
+            $("#person_guid_to_label").val(name);
+            $("#person_guid_guid").val(guid);
+            $("#ModalWindow").modal("hide");
+        };
+
+    </script>
+{% endblock %}

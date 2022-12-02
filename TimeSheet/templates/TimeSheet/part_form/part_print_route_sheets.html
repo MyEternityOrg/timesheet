@@ -1,0 +1,69 @@
+
+{% load static %}
+{% load l10n %}
+
+<table border="1" id="datatablePers" class="table table-bordered table-sm table-hover table-striped">
+            <thead class="thead-light">
+            <tr>
+                <th>Сотрудник</th>
+                <th>Подразделение</th>
+                <th>Должность</th>
+                <th>Итого (план)</th>
+                <th>Итого (факт)</th>
+                <th>Расх.</th>
+                {% for rowdata in rangedate %}
+                    <th>{{ rowdata|date:"d-m-y" }}</th>
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for row in init %}
+                {% for rowdata in row.data %}
+                    <tr>
+                        <td>{{ row.person_guid }}</td>
+                        <td>{{ rowdata.enterprise }}</td>
+                        <td>{{ rowdata.list_date.0.position }}</td>
+                        <td>{{ rowdata.total_p }}</td>
+                        <td>{{ rowdata.total_f }}</td>
+                        <td>{{ rowdata.total_diff }}</td>
+                        {% for dts in rangedate %}
+                            <td>
+                            {% for dts_p in rowdata.list_date %}
+                                {% if dts_p.dts == dts %}
+                                    {{ dts_p.bk }}
+                                {% endif %}
+                            {% endfor %}
+                            {% for dts_p in rowdata.list_date_f %}
+                                {% if dts_p.dts == dts %}
+                                    <br> {{ dts_p.bk }}
+                                {% endif %}
+                            {% endfor %}
+                             </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+            </tbody>
+        </table>
+
+
+<!-- REQUIRED SCRIPTS -->
+<!-- jQuery -->
+<script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'dist/js/jquery.formset.js' %}"></script>
+<!-- Bootstrap -->
+<script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'plugins/toastr/toastr.min.js' %}"></script>
+<!-- overlayScrollbars -->
+<script
+        src="{% static 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
+
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.js' %}"></script>
+
+<!-- OPTIONAL SCRIPTS -->
+<script src="{% static 'dist/js/demo.js' %}"></script>
+
+<script src="{% static 'plugins/jquery/jquery.floatThead.js' %}"></script>
+<script src="{% static 'plugins/jquery/jquery.floatThead.min.js' %}"></script>

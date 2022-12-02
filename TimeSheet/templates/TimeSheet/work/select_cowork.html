@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% load filtertags %}
+
+{% block title %}
+Подбор сотрудников "{{ sheet_shop }}" за "{{ dts }}" {{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+<form action="" method="post">
+      {% csrf_token %}
+
+      <div class="fixed-table-toolbar">
+            <div class="float-right search btn-group">
+                  <input class="form-control search-input" id="mySearch" type="search" placeholder="Search" autocomplete="off">
+            </div>
+
+
+            <table id="datatable" class="table table-bordered table-hover" data-page-length='100'>
+                  <thead class="thead-light">
+                  <tr>
+                        <th>S/N</th>
+                        <th>Сотрудник</th>
+                        <th>Должность</th>
+                        <th>График</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+
+                  {% for rowdata in init %}
+                  <tr class='clickable-row_val'
+                      data-href="{{rowdata.person_guid.guid}}|{{ rowdata.shedule_guid.guid }}|{{rowdata.position_guid.guid}}|{{person}}|{{ rowdata.person_guid }}">
+                        <td>{{ forloop.counter}}</td>
+                        <td>{{ rowdata.person_guid}}</td>
+                        <td>{{ rowdata.position_guid}}</td>
+                        <td>{{ rowdata.shedule_guid}}</td>
+                  </tr>
+                  {% endfor %}
+                  </tbody>
+            </table>
+
+      </div>
+
+      <input type="hidden" name="person" value={{person}}>
+      <input type="hidden" name="person" value={{p_uid}}>
+</form>
+
+{% block morejs %}
+
+<script>
+
+$(document).ready(function(){
+  $("#mySearch").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#datatable tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+
+(function ($) {
+    $('.clickable-row_val').css('cursor', 'pointer');
+    $(".clickable-row_val").click(function () {
+            window.opener.set_pes($(this).data("href"), '{{p_uid}}');
+            window.close();
+        }
+    );
+})(jQuery)
+
+</script>
+
+{% endblock morejs %}
+
+{% endblock %}
