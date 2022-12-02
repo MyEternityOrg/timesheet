@@ -702,16 +702,12 @@ class TimeSheetPlane(models.Model):
 
                 i_temp.append(tperson.person_guid)
                 initial_detail = {"person": tperson.person_guid,
-                                  "position": StaffHistory.get_last_position(datetime.today() if dts == None else dts,
+                                  "position": StaffHistory.get_last_position(datetime.today() if dts is None else dts,
                                                                              tperson.person_guid),
                                   "shedule": tperson.person_guid.get_last_Shedule(
-                                      datetime.today() if dts == None else dts),
-                                  'record_type': tperson.record_type,
-                                  'istech': tperson.istech,
-                                  'b_color': b_color}
-                initial_detail["date"] = []
-                initial_detail["Outcome"] = ''
-                initial_detail["Outcome_f"] = ''
+                                      datetime.today() if dts is None else dts), 'record_type': tperson.record_type,
+                                  'istech': tperson.istech, 'b_color': b_color, "date": [], "Outcome": '',
+                                  "Outcome_f": ''}
 
                 # for i_dts in sorted(transposed[tperson.person_guid])
                 for i_dts in TimeSheetPlane.get_list_date(tplane):
@@ -719,12 +715,12 @@ class TimeSheetPlane(models.Model):
 
                     get_date_data = transposed[tperson.person_guid].get(get_date)
 
-                    if get_date_data != None:
+                    if get_date_data is not None:
 
                         f_sheet = initial2.get(transposed[tperson.person_guid][get_date][2])
                         f_busy_key = empty_busy
                         f_amount = 0
-                        if f_sheet != None:
+                        if f_sheet is not None:
                             f_busy_key = f_sheet['busy_key_fact']
                             f_amount = f_sheet['hours_fact']
 
@@ -1095,7 +1091,8 @@ class persons_coworks_history(models.Model):
 
 class ImageCoworks(models.Model):
     guid = models.CharField(primary_key=True, max_length=64, db_column='guid', default=str(uuid.uuid4()))
-    persons_coworks = models.ForeignKey(persons_coworks, related_name='image_cowork', on_delete=models.CASCADE, db_column='persons_coworks')
+    persons_coworks = models.ForeignKey(persons_coworks, related_name='image_cowork', on_delete=models.CASCADE,
+                                        db_column='persons_coworks')
     image = models.ImageField(upload_to='image_cowork/%Y%m/')
     deleted_cowork = models.BooleanField(default=False)
     confirmed = models.BooleanField(default=False)
@@ -1124,16 +1121,13 @@ class ImageCoworks(models.Model):
 
         temp_image = Image.open(self.image)
         output = BytesIO()
-        temp_image.save(output, format="JPEG",  quality=30)
+        temp_image.save(output, format="JPEG", quality=30)
         output.seek(0)
 
         self.image = InMemoryUploadedFile(output, 'ImageField', "%s.jpg" % self.image.name.split('.')[0], 'image/jpeg',
                                           sys.getsizeof(output), None)
 
         super(ImageCoworks, self).save()
-
-
-
 
     class Meta:
         db_table = 'image_coworks'
@@ -1624,7 +1618,8 @@ class Shift_data_f_checks_statuses(models.Model):
 
 
 class Route_sheets(models.Model):
-    enterprise_guid = models.ForeignKey(Enterprises, primary_key=True, on_delete=models.CASCADE, db_column='enterprise_guid')
+    enterprise_guid = models.ForeignKey(Enterprises, primary_key=True, on_delete=models.CASCADE,
+                                        db_column='enterprise_guid')
     person_guid = models.ForeignKey(Persons, on_delete=models.CASCADE, db_column='person_guid')
     fd = models.DateTimeField(db_column='fd')
     td = models.DateTimeField(db_column='td')
@@ -1637,7 +1632,8 @@ class Route_sheets(models.Model):
 class Mtv_cashier(models.Model):
     year = models.IntegerField(db_column='y')
     month = models.IntegerField(db_column='m')
-    enterprise_guid = models.ForeignKey(Enterprises, primary_key=True, on_delete=models.CASCADE, db_column='enterprise_guid')
+    enterprise_guid = models.ForeignKey(Enterprises, primary_key=True, on_delete=models.CASCADE,
+                                        db_column='enterprise_guid')
     person_guid = models.ForeignKey(Persons, on_delete=models.CASCADE, db_column='person_guid')
     position_guid = models.ForeignKey(Positions, on_delete=models.CASCADE, db_column='position_guid')
     checks_count = models.IntegerField(db_column='checks_count')
@@ -1700,7 +1696,6 @@ class covid19_dtype(models.Model):
     class Meta:
         db_table = 'covid19_dtype'
         managed = False
-
 
 
 class covid19_vtype(models.Model):
