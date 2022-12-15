@@ -68,7 +68,7 @@ class Persons(models.Model):
 
 
 class person_statuses(models.Model):
-    person_guid = models.ForeignKey(Persons, primary_key=True, on_delete=models.CASCADE, db_column='person_guid')
+    person_guid = models.OneToOneField(Persons, primary_key=True, on_delete=models.CASCADE, db_column='person_guid')
     work_status_id = models.IntegerField()
     f_date = models.DateField()
     e_date = models.DateField()
@@ -231,7 +231,7 @@ class Shedules(models.Model):
 
 class PersonShedule(models.Model):
     # guid = models.CharField(primary_key=True, unique=True, max_length=64, db_column='guid')
-    person_guid = models.ForeignKey(Persons, primary_key=True, on_delete=models.CASCADE, db_column='person_guid')
+    person_guid = models.OneToOneField(Persons, primary_key=True, on_delete=models.CASCADE, db_column='person_guid')
     shedule_guid = models.ForeignKey(Shedules, on_delete=models.CASCADE, db_column='shedule_guid')
     begin_date = models.DateTimeField(db_column='begin_date')
 
@@ -256,7 +256,7 @@ class BusyKeys(models.Model):
 
 class SheduleHours(models.Model):
     dts = models.DateField(db_column='dts')
-    busy_key_guid = models.ForeignKey(BusyKeys, primary_key=True, unique=True, on_delete=models.CASCADE,
+    busy_key_guid = models.OneToOneField(BusyKeys, primary_key=True, unique=True, on_delete=models.CASCADE,
                                       db_column='busy_key_guid')
     hours_full = models.SmallIntegerField(db_column='hours_full')
     hours_lite = models.SmallIntegerField(db_column='hours_lite')
@@ -411,7 +411,7 @@ class StaffHistory(models.Model):
     dts_f = models.DateTimeField(db_column='dts_f')
     dts_t = models.DateTimeField(db_column='dts_t')
 
-    person_guid = models.ForeignKey(Persons, primary_key=True, on_delete=models.CASCADE, db_column='person_guid')
+    person_guid = models.OneToOneField(Persons, primary_key=True, on_delete=models.CASCADE, db_column='person_guid')
     position_guid = models.ForeignKey(Positions, on_delete=models.CASCADE, db_column='position_guid')
     rate = models.FloatField(db_column='rate')
     enterprise_guid = models.ForeignKey(Enterprises, on_delete=models.CASCADE, db_column='enterprise_guid')
@@ -1297,7 +1297,7 @@ class enterprise_revision_changes(models.Model):
 
 
 class persons_extended_info(models.Model):
-    person_guid = models.ForeignKey(Persons, primary_key=True, on_delete=models.CASCADE, db_column='person_guid')
+    person_guid = models.OneToOneField(Persons, primary_key=True, on_delete=models.CASCADE, db_column='person_guid')
     dts = models.DateField(db_column='dts')
     status_id = models.IntegerField(db_column='status_id')
 
@@ -1449,7 +1449,7 @@ class setting_filter(models.Model):
 
 
 class PositionsWhitelist(models.Model):
-    position_guid = models.ForeignKey(Positions, primary_key=True, on_delete=models.CASCADE, db_column='position_guid',
+    position_guid = models.OneToOneField(Positions, primary_key=True, on_delete=models.CASCADE, db_column='position_guid',
                                       verbose_name='Должность')
 
     def __str__(self):
@@ -1464,7 +1464,7 @@ class PositionsWhitelist(models.Model):
 
 class Trained_staff(models.Model):
     guid = models.CharField(max_length=64, db_column='guid')
-    person_guid = models.ForeignKey(Persons, primary_key=True, on_delete=models.CASCADE,
+    person_guid = models.OneToOneField(Persons, primary_key=True, on_delete=models.CASCADE,
                                     verbose_name='Сотрудник', db_column='person_guid')
     position_guid = models.ForeignKey(Positions, on_delete=models.CASCADE,
                                       verbose_name='Должность', db_column='position_guid')
@@ -1508,7 +1508,7 @@ class Check_names(models.Model):
 
 
 class Check_relations(models.Model):
-    check_id_f = models.ForeignKey(Check_names, related_name='check_id_f', on_delete=models.CASCADE, primary_key=True,
+    check_id_f = models.OneToOneField(Check_names, related_name='check_id_f', on_delete=models.CASCADE, primary_key=True,
                                    db_column='check_id_f')
     check_id_t = models.ForeignKey(Check_names, related_name='check_id_t', on_delete=models.CASCADE,
                                    db_column='check_id_t')
@@ -1618,7 +1618,7 @@ class Shift_data_f_checks_statuses(models.Model):
 
 
 class Route_sheets(models.Model):
-    enterprise_guid = models.ForeignKey(Enterprises, primary_key=True, on_delete=models.CASCADE,
+    enterprise_guid = models.OneToOneField(Enterprises, primary_key=True, on_delete=models.CASCADE,
                                         db_column='enterprise_guid')
     person_guid = models.ForeignKey(Persons, on_delete=models.CASCADE, db_column='person_guid')
     fd = models.DateTimeField(db_column='fd')
@@ -1632,8 +1632,8 @@ class Route_sheets(models.Model):
 class Mtv_cashier(models.Model):
     year = models.IntegerField(db_column='y')
     month = models.IntegerField(db_column='m')
-    enterprise_guid = models.ForeignKey(Enterprises, primary_key=True, on_delete=models.CASCADE,
-                                        db_column='enterprise_guid')
+    enterprise_guid = models.OneToOneField(Enterprises, primary_key=True, on_delete=models.CASCADE,
+                                           db_column='enterprise_guid')
     person_guid = models.ForeignKey(Persons, on_delete=models.CASCADE, db_column='person_guid')
     position_guid = models.ForeignKey(Positions, on_delete=models.CASCADE, db_column='position_guid')
     checks_count = models.IntegerField(db_column='checks_count')
@@ -1655,7 +1655,7 @@ class Mtv_cashier(models.Model):
 class Mtv_header(models.Model):
     year = models.IntegerField(db_column='y')
     month = models.IntegerField(db_column='m')
-    enterprise_guid = models.ForeignKey(Enterprises, primary_key=True, on_delete=models.CASCADE,
+    enterprise_guid = models.OneToOneField(Enterprises, primary_key=True, on_delete=models.CASCADE,
                                         db_column='enterprise_guid')
     person_guid = models.ForeignKey(Persons, on_delete=models.CASCADE, db_column='person_guid')
     position_guid = models.ForeignKey(Positions, on_delete=models.CASCADE, db_column='position_guid')
