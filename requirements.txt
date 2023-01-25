@@ -13,7 +13,7 @@ pytz==2022.7.1
 requests==2.28.1
 six==1.16.0
 sqlparse==0.4.3
-urllib3==1.26.13
+urllib3==1.26.14
 xhtml2pdf==0.2.8
 python-dotenv==0.21.0
 mssql-django==1.2
