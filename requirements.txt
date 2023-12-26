@@ -1,5 +1,5 @@
 asgiref==3.6.0
-certifi==2022.12.7
+certifi==2023.7.22
 chardet==5.1.0
 Django==4.1.5
 django-smart-selects==1.6.0
