@@ -15,5 +15,5 @@ six==1.16.0
 python-dotenv==1.0.0
 sqlparse==0.4.4
 urllib3==1.26.18
-xhtml2pdf==0.2.10
+xhtml2pdf==0.2.14
 mssql-django==1.2
